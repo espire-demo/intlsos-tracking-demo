@@ -1,0 +1,10 @@
+[
+  { "name": "Dr. Emily Clark", "specialty": "General Practitioner" },
+  { "name": "Dr. John Doe", "specialty": "General Practitioner" },
+  { "name": "Dr. Sarah Lee", "specialty": "Cardiology" },
+  { "name": "Dr. Robert Smith", "specialty": "Cardiology" },
+  { "name": "Dr. Karen Patel", "specialty": "Dermatology" },
+  { "name": "Dr. Michael Brown", "specialty": "Dermatology" },
+  { "name": "Dr. Alex Johnson", "specialty": "Mental Health" },
+  { "name": "Dr. Maria Gomez", "specialty": "Mental Health" }
+]
