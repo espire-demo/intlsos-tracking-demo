@@ -1,0 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+/* Custom styles for better aesthetics */
+.card {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s;
+}
+
+.tab-button {
+    transition: all 0.2s ease-in-out;
+    border-bottom: 3px solid transparent;
+}
+
+.tab-button.active {
+    border-color: #4f46e5;
+    color: #4f46e5;
+    font-weight: 600;
+}
+
+.spinner {
+    border-top-color: #4f46e5;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Chat styles */
+.chat-message.user {
+    background-color: #d1d5db; /* Gray-300 */
+    align-self: flex-end;
+}
+
+.chat-message.ai {
+    background-color: #eef2ff; /* Indigo-50 */
+    align-self: flex-start;
+}
+
+/* Custom colors */
+.bg-primary {
+    background-color: #4f46e5;
+}
+
+.text-primary {
+    color: #4f46e5;
+}
+
+.bg-secondary {
+    background-color: #10b981;
+}
+
+.text-secondary {
+    color: #10b981;
+}
+
+.font-sans {
+    font-family: 'Roboto', sans-serif;
+}

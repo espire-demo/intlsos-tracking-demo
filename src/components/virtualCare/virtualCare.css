@@ -1,0 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+.panel {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+    border-radius: 1rem;
+}
+
+.vitals-value {
+    font-size: 2.5rem;
+    line-height: 1;
+    font-weight: 700;
+}
+
+/* Tailwind config equivalent */
+.bg-virtual-bg {
+    background-color: #f3f4f6;
+}
+
+.bg-virtual-primary {
+    background-color: #06b6d4;
+}
+
+.bg-virtual-secondary {
+    background-color: #1e40af;
+}
+
+.text-virtual-primary {
+    color: #06b6d4;
+}
+
+.text-virtual-secondary {
+    color: #1e40af;
+}
+
+.hover\:bg-cyan-600:hover {
+    background-color: #0891b2;
+}
+
+.hover\:bg-virtual-primary\/20:hover {
+    background-color: rgba(6, 182, 212, 0.2);
+}
+
+.font-sans {
+    font-family: 'Roboto', sans-serif;
+}

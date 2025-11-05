@@ -1,0 +1,24 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+.panel {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+    border-radius: 1rem; /* rounded-xl */
+}
+
+/* Custom styles for chart placeholder */
+.chart-placeholder {
+    height: 300px;
+    background: repeating-linear-gradient(
+        -45deg,
+        #f0f9ff, /* Blue-50 */
+        #f0f9ff 10px,
+        #e0f2fe 10px, /* Blue-100 */
+        #e0f2fe 20px
+    );
+    border: 1px dashed #93c5fd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1e40af;
+    font-weight: 600;
+}
