@@ -13,6 +13,7 @@ import MemberPortal from './geminiComponent/MemberPortal.jsx'
 import AdminPortal from './geminiComponent/AdminPortal.jsx'
 import ClientPortal from './geminiComponent/ClientPortal.jsx'
 import ClinicalPortal from './geminiComponent/ClinicalPortal.jsx'
+import ClinicianPortal from './geminiComponent/ClinicianPortal.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -24,9 +25,10 @@ createRoot(document.getElementById('root')).render(
     <HealthCMS></HealthCMS>
     <DataAnalyticsDashboard></DataAnalyticsDashboard>
     <AdminnConfigHub></AdminnConfigHub> */}
-    <MemberPortal></MemberPortal>
+    {/* <MemberPortal></MemberPortal> */}
     {/* <AdminPortal></AdminPortal> */}
     {/* <ClientPortal></ClientPortal> */}
     {/* <ClinicalPortal></ClinicalPortal> */}
+    <ClinicianPortal></ClinicianPortal>
   </StrictMode>,
 )

@@ -1,13 +1,13 @@
 [
     {
         "id": 101,
-        "name": "Asif",
+        "name": "Alice Johnson",
         "email": "asif@demo.com",
         "pwd": "123456"
     },
     {
         "id": 102,
-        "name": "Bob",
+        "name": "Robert Smith",
         "email": "bob@demo.com",
         "pwd": "123456"
     }

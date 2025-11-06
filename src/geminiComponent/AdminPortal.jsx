@@ -54,13 +54,12 @@ const LoginPage = ({ onLogin }) => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
-      <form onSubmit={handleLogin} className="w-full max-w-md bg-white p-8 shadow-2xl rounded-xl transition-all duration-300 hover:shadow-3xl">
-        <div className="flex items-center space-x-2 text-indigo-700 mb-6">
-          <Icons.Stethoscope className="w-8 h-8"/>
-          <h1 className="text-3xl font-bold">Admin Portal Login</h1>
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4" style={{background: "linear-gradient(180deg, #002940 0%, #16376A 34.13%, #154C91 52.88%, #16376A 69.71%, #002940 100%)",}}>
+      <form onSubmit={handleLogin} className="w-full max-w-md bg-white md:p-12 shadow-2xl rounded-xl transition-all duration-300 hover:shadow-3xl text-center" style={{background: "linear-gradient(to right, #2c3e50, #4ca1af)",}}>
+        <div className="space-x-2 text-indigo-700 mb-2">
+          <h1 className="text-4xl font-bold text-white ">Admin Portal Login</h1>
         </div>
-        <p className="text-gray-500 mb-6">Access the Digital Health & RPM Management System.</p>
+        <p className="text-white mb-6">Access the Digital Health & RPM Management System.</p>
 
         {error && (
           <div className="p-3 mb-4 text-sm font-medium text-red-800 bg-red-100 rounded-lg">
@@ -94,6 +93,7 @@ const LoginPage = ({ onLogin }) => {
           <Icons.LogIn className="w-5 h-5 mr-2" />
           Log In
         </button>
+        <p class="text-sm text-white mt-6">Forgot password? | Need to register?</p>
       </form>
     </div>
   );
@@ -104,7 +104,7 @@ const LoginPage = ({ onLogin }) => {
  */
 const Dashboard = () => (
   <div className="space-y-6 p-4 md:p-8">
-    <h2 className="text-3xl font-extrabold text-gray-800 border-b pb-2 mb-6">Admin Overview</h2>
+    <h2 className="text-3xl font-extrabold text-white border-b pb-2 mb-6">Admin Overview</h2>
 
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       {/* Metric Card 1 */}
@@ -178,10 +178,10 @@ const ClaimsManagement = () => {
 
   return (
     <div className="space-y-6 p-4 md:p-8">
-      <h2 className="text-3xl font-extrabold text-indigo-600 border-b pb-2 mb-6">
+      <h2 className="text-3xl font-extrabold text-white border-b pb-2 mb-6">
         Digital Wallet Claims Review
       </h2>
-      <p className="text-gray-600">Review and approve or reject claims submitted by users for digital wallet reimbursement.</p>
+      <p className="text-white">Review and approve or reject claims submitted by users for digital wallet reimbursement.</p>
 
       <div className="bg-white p-4 rounded-xl shadow-lg overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
@@ -243,10 +243,10 @@ const ClaimsManagement = () => {
  */
 const CarePlanTemplates = () => (
   <div className="space-y-6 p-4 md:p-8">
-    <h2 className="text-3xl font-extrabold text-indigo-600 border-b pb-2 mb-6">
+    <h2 className="text-3xl font-extrabold text-white border-b pb-2 mb-6">
       RPM: Care Plan Templates Management
     </h2>
-    <p className="text-gray-600">Define reusable templates for conditions like Hypertension, Diabetes, and COPD.</p>
+    <p className="text-white">Define reusable templates for conditions like Hypertension, Diabetes, and COPD.</p>
 
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* Template Card 1 */}
@@ -294,10 +294,10 @@ const CarePlanTemplates = () => (
  */
 const WorkflowManagement = () => (
   <div className="space-y-6 p-4 md:p-8">
-    <h2 className="text-3xl font-extrabold text-indigo-600 border-b pb-2 mb-6">
+    <h2 className="text-3xl font-extrabold text-white border-b pb-2 mb-6">
       RPM: Configurable Workflows & Approvals
     </h2>
-    <p className="text-gray-600">Configure multi-step workflows for critical RPM events like new patient enrollment and critical alert escalations.</p>
+    <p className="text-white">Configure multi-step workflows for critical RPM events like new patient enrollment and critical alert escalations.</p>
 
     <div className="space-y-4">
       {/* Workflow 1 */}
@@ -336,10 +336,10 @@ const WorkflowManagement = () => (
  */
 const RPMReporting = () => (
   <div className="space-y-6 p-4 md:p-8">
-    <h2 className="text-3xl font-extrabold text-indigo-600 border-b pb-2 mb-6">
+    <h2 className="text-3xl font-extrabold text-white border-b pb-2 mb-6">
       RPM: Program Reporting & Oversight
     </h2>
-    <p className="text-gray-600">Comprehensive view of program health, patient engagement, and financial metrics.</p>
+    <p className="text-white">Comprehensive view of program health, patient engagement, and financial metrics.</p>
 
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       <div className="bg-white p-6 rounded-xl shadow-lg">
@@ -397,10 +397,9 @@ const ContentArea = ({ currentPage }) => {
  * @param {function} onLogout - Function to handle logout.
  */
 const Sidebar = ({ currentPage, onNavigate, onLogout }) => (
-  <div className="flex flex-col h-full bg-gray-800 text-white w-64 md:w-56 flex-shrink-0">
+  <div className="flex flex-col h-full text-white w-74 md:w-58 flex-shrink-0" style={{background: "linear-gradient(to right, #2c3e50, #4ca1af)",}}>
     {/* Logo/Title */}
-    <div className="p-6 text-2xl font-extrabold text-indigo-400 border-b border-gray-700 flex items-center">
-      <Icons.Stethoscope className="w-6 h-6 mr-2"/>
+    <div className="p-6 text-3xl font-extrabold text-white border-b border-gray-700 flex items-center">
       D-Health Admin
     </div>
 
@@ -471,7 +470,7 @@ const AdminPortal = () => {
   const currentItem = NAV_ITEMS.find(item => item.id === currentPage) || NAV_ITEMS[0];
 
   return (
-    <div className="flex h-screen bg-gray-100 antialiased overflow-hidden">
+    <div className="flex h-screen bg-gray-100 antialiased overflow-hidden" style={{background: "linear-gradient(180deg, #002940 0%, #16376A 34.13%, #154C91 52.88%, #16376A 69.71%, #002940 100%)",}}>
       {/* 1. Static Sidebar (Desktop) */}
       <div className="hidden md:flex">
         <Sidebar
@@ -503,7 +502,7 @@ const AdminPortal = () => {
       {/* 3. Main Content Area */}
       <div className="flex flex-col flex-1 overflow-hidden">
         {/* Header */}
-        <header className="flex justify-between items-center bg-white border-b border-gray-200 p-4 shadow-sm flex-shrink-0">
+        <header className="flex justify-between items-center text-white border-b border-black p-4 shadow-sm flex-shrink-0" style={{minHeight: "85px"}}>
           <button
             onClick={() => setIsSidebarOpen(true)}
             className="md:hidden text-gray-500 hover:text-gray-700 p-2 rounded-lg"
@@ -513,17 +512,17 @@ const AdminPortal = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <h1 className="text-xl md:text-2xl font-bold text-gray-800 transition duration-150">
+          <h1 className="text-xl md:text-2xl font-bold text-white transition duration-150">
             {currentItem.name}
           </h1>
           <div className="flex items-center space-x-4">
-            <span className="text-sm font-medium text-gray-700 hidden sm:inline">Hello, Admin User</span>
+            <span className="text-sm font-medium text-white hidden sm:inline">Hello, Admin User</span>
             <div className="w-10 h-10 bg-indigo-500 rounded-full flex items-center justify-center text-white font-bold cursor-pointer">
               AU
             </div>
             <button
               onClick={handleLogout}
-              className="text-gray-500 hover:text-red-500 hidden sm:block p-2 rounded-lg transition duration-200"
+              className="text-white hover:text-red-500 hidden sm:block p-2 rounded-lg transition duration-200"
               title="Logout"
             >
               <Icons.LogIn className="w-5 h-5" />

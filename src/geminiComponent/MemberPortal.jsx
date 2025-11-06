@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { Phone, Calendar, PlusCircle } from "lucide-react";
+//import clinicians from "./clinicians.json";
 
 // --- Icon Definitions (Inline SVGs to maintain Single File Mandate) ---
 const HomeIcon = (props) => (<svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>);
@@ -47,129 +48,151 @@ const Button = ({ children, onClick, primary = true, disabled = false, className
  * Tab 1: Home/PHR (Personal Health Record)
  * Shows a quick overview, confirmations, and RPM vitals summary.
  */
-const PHR = ({ rpmData, telehealthConfirmation, user }) => (
+const PHR = ({ rpmData, telehealthConfirmation, user }) => {
 
-  <div className="space-y-8">
+  // Helper: convert date + timeSlot → Date object
+  const getBookingDateTime = (b) => {
+    try {
+      const [time, modifier] = b.timeSlot.split(" ");
+      let [hours, minutes] = time.split(":").map(Number);
+      if (modifier === "PM" && hours !== 12) hours += 12;
+      if (modifier === "AM" && hours === 12) hours = 0;
 
-    <Panel
-      title={`Welcome Back, ${user?.name || 'Member'}`}
-      icon={HomeIcon}
-      className="bg-indigo-50"
-    >
-      <p className="text-gray-600 mb-4">
-        Your personalized health hub. Quick glance at your essential health stats and recent activity.
-      </p>
+      return new Date(
+        `${b.date}T${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:00`
+      );
+    } catch {
+      return new Date(0); // fallback to epoch if invalid
+    }
+  };
 
-      {/* Recent Activity */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-        {/* 🩺 Last Teleconsultation */}
-        {(() => {
+  return (
+    <div className="space-y-8">
+      <Panel
+        title={`Welcome Back, ${user?.name || 'Member'}`}
+        icon={HomeIcon}
+        className="bg-indigo-50"
+      >
+        <p className="text-gray-600 mb-4">
+          Your personalized health hub. Quick glance at your essential health stats and recent activity.
+        </p>
 
-          const userId = user?.id; // 🔹 get current logged-in user ID
-          const allBookings = JSON.parse(localStorage.getItem("teleBookings")) || [];
-          // 🔹 Filter only this user's bookings
-          const bookings = allBookings.filter(b => b.userId === userId);
+        {/* Recent Activity */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+          {/* 🩺 Last Teleconsultation */}
+          {(() => {
 
-          if (bookings.length === 0) {
+            const userId = user?.id; // 🔹 get current logged-in user ID
+            const allBookings = JSON.parse(localStorage.getItem("teleBookings")) || [];
+            // 🔹 Filter only this user's bookings
+            const bookings = allBookings.filter(b => b.userId === userId);
+
+            if (bookings.length === 0) {
+              return (
+                <div className="p-4 bg-white rounded-lg shadow-sm border border-indigo-200">
+                  <p className="text-sm text-gray-500">Last Teleconsultation</p>
+                  <p className="text-xl font-bold text-gray-400">No Data</p>
+                </div>
+              );
+            }
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // midnight for "today" comparison
+
+            // Filter for only past bookings (before today) and get the latest one
+            const pastBookings = bookings
+              .map((b) => ({ ...b, dateTime: getBookingDateTime(b) }))
+              .filter((b) => b.dateTime < today)
+              .sort((a, b) => b.dateTime - a.dateTime);
+
+            const latest = pastBookings[0] || null;
+
+            let displayText = "No Data";
+            if (latest) {
+              const bookingDate = new Date(getBookingDateTime(latest));
+              const bookingLocal = new Date(bookingDate);
+              bookingLocal.setHours(0, 0, 0, 0);
+
+              // Calculate day difference based on calendar days
+              const diffDays = Math.floor(
+                (today - bookingLocal) / (1000 * 60 * 60 * 24)
+              );
+
+              // Format display
+              displayText =
+                diffDays === 0
+                  ? "Today"
+                  : diffDays === 1
+                    ? "1 Day Ago"
+                    : diffDays > 1
+                      ? `${diffDays} Days Ago`
+                      : "No Data";
+            }
+
+            // const bookingDate = new Date(getBookingDateTime(latest));
+            // const bookingLocal = new Date(bookingDate);
+            // bookingLocal.setHours(0, 0, 0, 0);
+
+            // // Calculate day difference based on calendar days
+            // const diffDays = Math.floor(
+            //   (today - bookingLocal) / (1000 * 60 * 60 * 24)
+            // );
+
+            // // Format display
+            // const displayText =
+            //   diffDays === 0
+            //     ? "Today"
+            //     : diffDays === 1
+            //       ? "1 Day Ago"
+            //       : diffDays > 1 ? `${diffDays} Days Ago` : "No Data";
+
             return (
               <div className="p-4 bg-white rounded-lg shadow-sm border border-indigo-200">
                 <p className="text-sm text-gray-500">Last Teleconsultation</p>
-                <p className="text-xl font-bold text-gray-400">No Data</p>
+                <p className="text-xl font-bold text-indigo-600">{displayText}</p>
+                <p className="text-xs text-gray-500 mt-1">
+
+                  {displayText !== "No Data" && (() => {
+                    try {
+                      const [time, modifier] = latest.timeSlot.split(" ");
+                      let [hours, minutes] = time.split(":").map(Number);
+
+                      if (modifier === "PM" && hours !== 12) hours += 12;
+                      if (modifier === "AM" && hours === 12) hours = 0;
+
+                      const combined = new Date(
+                        `${latest.date}T${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:00`
+                      );
+
+                      return combined.toLocaleString("en-US", {
+                        dateStyle: "medium",
+                        timeStyle: "short",
+                      });
+                    } catch (e) {
+                      return "Invalid Date";
+                    }
+                  })()}
+
+                </p>
               </div>
             );
-          }
+          })()}
 
-          const today = new Date();
-          today.setHours(0, 0, 0, 0); // midnight for "today" comparison
+          {/* Health Score */}
+          <div className="p-4 bg-white rounded-lg shadow-sm border border-indigo-200">
+            <p className="text-sm text-gray-500">Health Score</p>
+            <p className="text-xl font-bold text-green-600">88/100</p>
+          </div>
 
-          // Helper: convert date + timeSlot → Date object
-          const getBookingDateTime = (b) => {
-            try {
-              const [time, modifier] = b.timeSlot.split(" ");
-              let [hours, minutes] = time.split(":").map(Number);
-              if (modifier === "PM" && hours !== 12) hours += 12;
-              if (modifier === "AM" && hours === 12) hours = 0;
-
-              return new Date(
-                `${b.date}T${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:00`
-              );
-            } catch {
-              return new Date(0); // fallback to epoch if invalid
-            }
-          };
-
-          // Filter for only past bookings (before today) and get the latest one
-          const pastBookings = bookings
-            .map((b) => ({ ...b, dateTime: getBookingDateTime(b) }))
-            .filter((b) => b.dateTime < today)
-            .sort((a, b) => b.dateTime - a.dateTime);
-
-          const latest = pastBookings[0] || null;
-
-          const bookingDate = new Date(getBookingDateTime(latest));
-          const bookingLocal = new Date(bookingDate);
-          bookingLocal.setHours(0, 0, 0, 0);
-
-          // Calculate day difference based on calendar days
-          const diffDays = Math.floor(
-            (today - bookingLocal) / (1000 * 60 * 60 * 24)
-          );
-
-          // Format display
-          const displayText =
-            diffDays === 0
-              ? "Today"
-              : diffDays === 1
-                ? "1 Day Ago"
-                : diffDays > 1 ? `${diffDays} Days Ago` : "No Data";
-
-          return (
-            <div className="p-4 bg-white rounded-lg shadow-sm border border-indigo-200">
-              <p className="text-sm text-gray-500">Last Teleconsultation</p>
-              <p className="text-xl font-bold text-indigo-600">{displayText}</p>
-              <p className="text-xs text-gray-500 mt-1">
-
-                {displayText !== "No Data" && (() => {
-                  try {
-                    const [time, modifier] = latest.timeSlot.split(" ");
-                    let [hours, minutes] = time.split(":").map(Number);
-
-                    if (modifier === "PM" && hours !== 12) hours += 12;
-                    if (modifier === "AM" && hours === 12) hours = 0;
-
-                    const combined = new Date(
-                      `${latest.date}T${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:00`
-                    );
-
-                    return combined.toLocaleString("en-US", {
-                      dateStyle: "medium",
-                      timeStyle: "short",
-                    });
-                  } catch (e) {
-                    return "Invalid Date";
-                  }
-                })()}
-
-              </p>
-            </div>
-          );
-        })()}
-
-        {/* Health Score */}
-        <div className="p-4 bg-white rounded-lg shadow-sm border border-indigo-200">
-          <p className="text-sm text-gray-500">Health Score</p>
-          <p className="text-xl font-bold text-green-600">88/100</p>
+          {/* Rewards */}
+          <div className="p-4 bg-white rounded-lg shadow-sm border border-indigo-200">
+            <p className="text-sm text-gray-500">Rewards Points</p>
+            <p className="text-xl font-bold text-yellow-600">450</p>
+          </div>
         </div>
+      </Panel>
 
-        {/* Rewards */}
-        <div className="p-4 bg-white rounded-lg shadow-sm border border-indigo-200">
-          <p className="text-sm text-gray-500">Rewards Points</p>
-          <p className="text-xl font-bold text-yellow-600">450</p>
-        </div>
-      </div>
-    </Panel>
-
-    {/* <Panel title="Recent Consultations" icon={PhoneCallIcon}>
+      {/* <Panel title="Recent Consultations" icon={PhoneCallIcon}>
       {(() => {
         const userId = user?.id; // get current logged-in user ID
         const allBookings = JSON.parse(localStorage.getItem("teleBookings")) || [];
@@ -230,105 +253,106 @@ const PHR = ({ rpmData, telehealthConfirmation, user }) => (
       })()}
     </Panel> */}
 
-    <Panel title="Recent Consultations" icon={PhoneCallIcon}>
-      {(() => {
-        const userId = user?.id;
-        const allBookings = JSON.parse(localStorage.getItem("teleBookings")) || [];
+      <Panel title="Recent Consultations" icon={PhoneCallIcon}>
+        {(() => {
+          const userId = user?.id;
+          const allBookings = JSON.parse(localStorage.getItem("teleBookings")) || [];
 
-        // Helper function to combine date + timeSlot into a single Date object
-        const getBookingDateTime = (b) => {
-          try {
-            const [time, modifier] = b.timeSlot.split(" ");
-            let [hours, minutes] = time.split(":").map(Number);
-            if (modifier === "PM" && hours !== 12) hours += 12;
-            if (modifier === "AM" && hours === 12) hours = 0;
-            return new Date(
-              `${b.date}T${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:00`
+          // Helper function to combine date + timeSlot into a single Date object
+          const getBookingDateTime = (b) => {
+            try {
+              const [time, modifier] = b.timeSlot.split(" ");
+              let [hours, minutes] = time.split(":").map(Number);
+              if (modifier === "PM" && hours !== 12) hours += 12;
+              if (modifier === "AM" && hours === 12) hours = 0;
+              return new Date(
+                `${b.date}T${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:00`
+              );
+            } catch {
+              return new Date(0); // fallback if invalid
+            }
+          };
+
+          const now = new Date();
+
+          // Filter by user and past consultations
+          const bookings = allBookings
+            .filter((b) => b.userId === userId)
+            .map((b) => ({ ...b, dateTime: getBookingDateTime(b) }))
+            .filter((b) => b.dateTime < now) // only before now
+            .sort((a, b) => b.dateTime - a.dateTime); // newest first
+
+          if (bookings.length > 0) {
+            return (
+              <div className="space-y-4">
+                {bookings.slice(0, 5).map((b, i) => (
+                  <div
+                    key={i}
+                    className="p-4 bg-green-50 border-l-4 border-green-500 rounded-lg text-green-800"
+                  >
+                    <h3 className="font-semibold">Consultation Completed</h3>
+                    <p className="text-sm">
+                      {b.specialty} —{" "}
+                      {b.dateTime.toLocaleString("en-US", {
+                        dateStyle: "medium",
+                        timeStyle: "short",
+                      })}
+                    </p>
+                    <p className="text-xs text-gray-600 mt-1">
+                      Booked on {new Date(b.createdAt).toLocaleString()}
+                    </p>
+                  </div>
+                ))}
+              </div>
             );
-          } catch {
-            return new Date(0); // fallback if invalid
+          } else {
+            return (
+              <p className="text-gray-500">
+                No past teleconsultations found in your PHR. Book one today!
+              </p>
+            );
           }
-        };
+        })()}
+      </Panel>
 
-        const now = new Date();
+      {/* EMR/Partner Data Sync (PHR Requirement) */}
+      <Panel title="Synchronized Health Record" icon={ShieldCheckIcon}>
+        <p className="text-sm text-gray-500 mb-2">Data synced from your EMR and partner wellness apps.</p>
+        <ul className="list-disc list-inside space-y-1 text-gray-700">
+          <li>Last medication update (EMR Sync): **Amlodipine** (Oct 20, 2025)</li>
+          <li>Wellness Coaching Task (Partner App Sync): **Module 3 complete** (Yesterday)</li>
+        </ul>
+      </Panel>
 
-        // Filter by user and past consultations
-        const bookings = allBookings
-          .filter((b) => b.userId === userId)
-          .map((b) => ({ ...b, dateTime: getBookingDateTime(b) }))
-          .filter((b) => b.dateTime < now) // only before now
-          .sort((a, b) => b.dateTime - a.dateTime); // newest first
-
-        if (bookings.length > 0) {
-          return (
-            <div className="space-y-4">
-              {bookings.slice(0, 5).map((b, i) => (
-                <div
-                  key={i}
-                  className="p-4 bg-green-50 border-l-4 border-green-500 rounded-lg text-green-800"
-                >
-                  <h3 className="font-semibold">Consultation Completed</h3>
-                  <p className="text-sm">
-                    {b.specialty} —{" "}
-                    {b.dateTime.toLocaleString("en-US", {
-                      dateStyle: "medium",
-                      timeStyle: "short",
-                    })}
-                  </p>
-                  <p className="text-xs text-gray-600 mt-1">
-                    Booked on {new Date(b.createdAt).toLocaleString()}
-                  </p>
-                </div>
-              ))}
+      {/* RPM Vitals Summary */}
+      <Panel title="Remote Patient Monitoring Summary" icon={HeartPulseIcon}>
+        <div className="grid grid-cols-2 gap-4">
+          {rpmData.map((data, index) => (
+            <div key={index} className="p-3 border rounded-lg text-center">
+              <p className="text-sm text-gray-500">{data.label}</p>
+              <p className="text-2xl font-bold text-blue-600">{data.value}</p>
+              <p className="text-xs text-gray-400">Target: {data.target}</p>
             </div>
-          );
-        } else {
-          return (
-            <p className="text-gray-500">
-              No past teleconsultations found in your PHR. Book one today!
-            </p>
-          );
-        }
-      })()}
-    </Panel>
-
-    {/* EMR/Partner Data Sync (PHR Requirement) */}
-    <Panel title="Synchronized Health Record" icon={ShieldCheckIcon}>
-      <p className="text-sm text-gray-500 mb-2">Data synced from your EMR and partner wellness apps.</p>
-      <ul className="list-disc list-inside space-y-1 text-gray-700">
-        <li>Last medication update (EMR Sync): **Amlodipine** (Oct 20, 2025)</li>
-        <li>Wellness Coaching Task (Partner App Sync): **Module 3 complete** (Yesterday)</li>
-      </ul>
-    </Panel>
-
-    {/* RPM Vitals Summary */}
-    <Panel title="Remote Patient Monitoring Summary" icon={HeartPulseIcon}>
-      <div className="grid grid-cols-2 gap-4">
-        {rpmData.map((data, index) => (
-          <div key={index} className="p-3 border rounded-lg text-center">
-            <p className="text-sm text-gray-500">{data.label}</p>
-            <p className="text-2xl font-bold text-blue-600">{data.value}</p>
-            <p className="text-xs text-gray-400">Target: {data.target}</p>
-          </div>
-        ))}
-      </div>
-    </Panel>
-  </div>
-);
+          ))}
+        </div>
+      </Panel>
+    </div>
+  );
+};
 
 /**
  * Tab 2: Teleconsultation Booking
  */
-
 const Teleconsultation = ({ setTelehealthConfirmation, user }) => {
   const [specialty, setSpecialty] = useState("General Practitioner");
   const [consultType, setConsultType] = useState("Audio Consultation");
-  const [clinician, setClinician] = useState("");
+  const [clinician, setClinician] = useState({ id: "", name: "" });
   const [timeSlot, setTimeSlot] = useState("");
   const [paymentType, setPaymentType] = useState("cashless");
   const [isBooked, setIsBooked] = useState(false);
   const [previousBookings, setPreviousBookings] = useState([]);
   const [showBookingPanel, setShowBookingPanel] = useState(false);
+  const [clinicians, setClinicians] = useState([]); // ✅ holds list of all clinicians
 
   const [date, setDate] = useState(() => {
     const today = new Date();
@@ -348,15 +372,15 @@ const Teleconsultation = ({ setTelehealthConfirmation, user }) => {
     "Orthopedics", "Neurology"
   ];
 
-  const clinicians = {
-    "General Practitioner": ["Dr. Daniel Martin", "Dr. Laura Robinson", "Dr. Mark Anderson"],
-    "Cardiology": ["Dr. Sarah Johnson", "Dr. Michael Chen", "Dr. Robert Williams", "Dr. Emily Davis"],
-    "Dermatology": ["Dr. Lisa Anderson", "Dr. James Martinez", "Dr. Patricia Taylor"],
-    "Pediatrics": ["Dr. Jennifer Brown", "Dr. David Wilson", "Dr. Maria Garcia"],
-    "Orthopedics": ["Dr. Christopher Lee", "Dr. Amanda White", "Dr. Kevin Thompson"],
-    "Neurology": ["Dr. Rachel Moore", "Dr. Thomas Jackson", "Dr. Susan Harris"]
-  };
+  // Load clinicians.json once on mount
+  useEffect(() => {
+    fetch(`${import.meta.env.BASE_URL}data/clinicians.json`)
+      .then((res) => res.json())
+      .then((data) => setClinicians(data))
+      .catch((err) => console.error("Failed to load clinicians:", err));
+  }, []);
 
+  // Load previous bookings
   useEffect(() => {
     const storedBookings = JSON.parse(localStorage.getItem("teleBookings")) || [];
     setPreviousBookings(storedBookings);
@@ -365,7 +389,7 @@ const Teleconsultation = ({ setTelehealthConfirmation, user }) => {
   const resetForm = () => {
     setIsBooked(false);
     setSpecialty("General Practitioner");
-    setClinician("");
+    setClinician({ id: "", name: "" });
     setConsultType("Audio Consultation");
     setPaymentType("cashless");
     setTimeSlot("");
@@ -374,7 +398,7 @@ const Teleconsultation = ({ setTelehealthConfirmation, user }) => {
   };
 
   const handleConfirmBooking = () => {
-    if (!clinician) {
+    if (!clinician.id) {
       alert("Please select a clinician");
       return;
     }
@@ -388,10 +412,10 @@ const Teleconsultation = ({ setTelehealthConfirmation, user }) => {
       bookingId,
       userId,
       specialty,
-      clinician,
+      clinicianId: clinician.id,
+      clinician: clinician.name,
       consultType,
       paymentType,
-      // date: "2025-10-30",
       date,
       timeSlot,
       createdAt: new Date().toISOString(),
@@ -401,22 +425,28 @@ const Teleconsultation = ({ setTelehealthConfirmation, user }) => {
     existing.push(newBooking);
     localStorage.setItem("teleBookings", JSON.stringify(existing));
 
-    const confirmationMsg = `✅ Booking Confirmed!\n\nSpecialty: ${specialty}\nClinician: ${clinician}\nType: ${consultType}\nPayment: ${paymentType}\nDate: ${new Date(date).toLocaleDateString()}\nTime: ${timeSlot}`;
+    const confirmationMsg = `✅ Booking Confirmed!\n\nSpecialty: ${specialty}\nClinician: ${clinician.name}\nType: ${consultType}\nPayment: ${paymentType}\nDate: ${new Date(date).toLocaleDateString()}\nTime: ${timeSlot}`;
     setTelehealthConfirmation(confirmationMsg);
     setIsBooked(true);
-    setShowBookingPanel(false); // 👈 hide form after saving
+    setShowBookingPanel(false);
   };
+
+  // ✅ Filter clinicians by specialty
+  const filteredClinicians = clinicians.filter(
+    (doc) => doc.specialty === specialty
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
       <div className="max-w-5xl mx-auto space-y-8">
-
-        {/* Appointment Bookings Panel (always visible) */}
+        {/* Appointment Bookings Panel */}
         <Panel>
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center gap-2">
               <ShieldCheckIcon className="w-5 h-5 text-indigo-600" />
-              <h2 className="text-xl font-semibold text-gray-800">Appointment Bookings</h2>
+              <h2 className="text-xl font-semibold text-gray-800">
+                Appointment Bookings
+              </h2>
             </div>
 
             <button
@@ -455,7 +485,12 @@ const Teleconsultation = ({ setTelehealthConfirmation, user }) => {
                       >
                         <td className="px-4 py-2">{b.bookingId}</td>
                         <td className="px-4 py-2">{b.specialty}</td>
-                        <td className="px-4 py-2">{b.clinician}</td>
+                        <td className="px-4 py-2">
+                          {b.clinician}{" "}
+                          <span className="text-xs text-gray-500">
+                            ({b.clinicianId})
+                          </span>
+                        </td>
                         <td className="px-4 py-2">{b.consultType}</td>
                         <td className="px-4 py-2">
                           {new Date(b.date).toLocaleDateString()}
@@ -470,14 +505,15 @@ const Teleconsultation = ({ setTelehealthConfirmation, user }) => {
           )}
         </Panel>
 
-
-        {/* Book a Consultation Panel (conditionally visible) */}
+        {/* Booking Form */}
         {showBookingPanel && (
           <Panel>
             <div className="flex justify-between items-center mb-4">
               <div className="flex items-center gap-2">
                 <Phone className="w-5 h-5 text-blue-600" />
-                <h2 className="text-xl font-semibold text-gray-800">Book a consultation</h2>
+                <h2 className="text-xl font-semibold text-gray-800">
+                  Book a consultation
+                </h2>
               </div>
 
               <button
@@ -497,7 +533,7 @@ const Teleconsultation = ({ setTelehealthConfirmation, user }) => {
                     value={specialty}
                     onChange={(e) => {
                       setSpecialty(e.target.value);
-                      setClinician("");
+                      setClinician({ id: "", name: "" });
                     }}
                     className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-2 bg-gray-50"
                   >
@@ -510,19 +546,24 @@ const Teleconsultation = ({ setTelehealthConfirmation, user }) => {
                   </select>
                 </label>
 
-                {/* Clinician */}
-                {specialty && (
+                {/* Clinician Dropdown */}
+                {filteredClinicians.length > 0 && (
                   <label className="block">
                     <span className="text-gray-700 font-medium">Clinician</span>
                     <select
-                      value={clinician}
-                      onChange={(e) => setClinician(e.target.value)}
+                      value={clinician.id}
+                      onChange={(e) => {
+                        const selected = filteredClinicians.find(
+                          (doc) => doc.id === e.target.value
+                        );
+                        setClinician(selected || { id: "", name: "" });
+                      }}
                       className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-2 bg-gray-50"
                     >
                       <option value="">Select Clinician</option>
-                      {clinicians[specialty]?.map((doc, i) => (
-                        <option key={i} value={doc}>
-                          {doc}
+                      {filteredClinicians.map((doc) => (
+                        <option key={doc.id} value={doc.id}>
+                          {doc.name} ({doc.id})
                         </option>
                       ))}
                     </select>
@@ -531,14 +572,20 @@ const Teleconsultation = ({ setTelehealthConfirmation, user }) => {
 
                 {/* Consultation Type */}
                 <label className="block">
-                  <span className="text-gray-700 font-medium">Consultation Type</span>
+                  <span className="text-gray-700 font-medium">
+                    Consultation Type
+                  </span>
                   <select
                     value={consultType}
                     onChange={(e) => setConsultType(e.target.value)}
                     className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-2 bg-gray-50"
                   >
-                    <option value="Audio Consultation">Audio Consultation</option>
-                    <option value="Video Consultation">Video Consultation</option>
+                    <option value="Audio Consultation">
+                      Audio Consultation
+                    </option>
+                    <option value="Video Consultation">
+                      Video Consultation
+                    </option>
                   </select>
                 </label>
 
@@ -558,28 +605,27 @@ const Teleconsultation = ({ setTelehealthConfirmation, user }) => {
                 </label>
 
                 {/* Time Slots */}
-                {date && (
-                  <div>
-                    <label className="block text-gray-700 font-medium mb-3">
-                      Available Time Slots:
-                    </label>
-                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                      {timeSlots.map((slot) => (
-                        <button
-                          key={slot}
-                          type="button"
-                          onClick={() => setTimeSlot(slot)}
-                          className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${timeSlot === slot
+                <div>
+                  <label className="block text-gray-700 font-medium mb-3">
+                    Available Time Slots:
+                  </label>
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                    {timeSlots.map((slot) => (
+                      <button
+                        key={slot}
+                        type="button"
+                        onClick={() => setTimeSlot(slot)}
+                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                          timeSlot === slot
                             ? "bg-blue-600 text-white shadow-md"
                             : "bg-gray-100 text-gray-700 hover:bg-blue-50 hover:text-blue-600 border border-gray-300"
-                            }`}
-                        >
-                          {slot}
-                        </button>
-                      ))}
-                    </div>
+                        }`}
+                      >
+                        {slot}
+                      </button>
+                    ))}
                   </div>
-                )}
+                </div>
 
                 {/* Payment Type */}
                 <div>
@@ -621,11 +667,7 @@ const Teleconsultation = ({ setTelehealthConfirmation, user }) => {
                 <p className="text-green-800 font-medium">
                   Your appointment is confirmed and saved.
                 </p>
-                <Button
-                  primary={false}
-                  onClick={resetForm}
-                  className="mt-4"
-                >
+                <Button primary={false} onClick={resetForm} className="mt-4">
                   Book Another
                 </Button>
               </div>
@@ -637,143 +679,348 @@ const Teleconsultation = ({ setTelehealthConfirmation, user }) => {
   );
 };
 
+
 // const Teleconsultation = ({ setTelehealthConfirmation, user }) => {
-
+//   const [specialty, setSpecialty] = useState("General Practitioner");
+//   const [consultType, setConsultType] = useState("Audio Consultation");
+//   const [clinician, setClinician] = useState({ id: "", name: "" });
+//   const [timeSlot, setTimeSlot] = useState("");
+//   const [paymentType, setPaymentType] = useState("cashless");
 //   const [isBooked, setIsBooked] = useState(false);
-//   const [userId, setUserId] = useState(user.id);
-//   const [specialty, setSpecialty] = useState("General Practice");
-//   const [consultType, setConsultType] = useState("Teleconsultation");
-//   const [clinician, setClinician] = useState("");
+//   const [previousBookings, setPreviousBookings] = useState([]);
+//   const [showBookingPanel, setShowBookingPanel] = useState(false);
 
-//   const [dateTime, setDateTime] = useState(() => {
-//     const now = new Date();
-//     now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); // Adjust for local timezone
-//     return now.toISOString().slice(0, 16); // "YYYY-MM-DDTHH:mm"
+//   const [date, setDate] = useState(() => {
+//     const today = new Date();
+//     return today.toISOString().split("T")[0];
 //   });
 
-//   const [clinicians, setClinicians] = useState([]);
+//   const [userId] = useState(user.id);
 
-//   // ✅ Load clinicians.json once on mount
-//   useEffect(() => {
-//     fetch("/data/clinicians.json")
+//   const timeSlots = [
+//     "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM", "11:00 AM",
+//     "11:30 AM", "12:00 PM", "02:00 PM", "02:30 PM", "03:00 PM",
+//     "03:30 PM", "04:00 PM", "04:30 PM", "05:00 PM", "05:30 PM", "06:00 PM"
+//   ];
+
+//   const specialties = [
+//     "General Practitioner", "Cardiology", "Dermatology", "Pediatrics",
+//     "Orthopedics", "Neurology"
+//   ];
+
+//   //Load clinicians.json once on mount
+//   useEffect(() => {    
+//     fetch(`${import.meta.env.BASE_URL}data/clinicians.json`)
 //       .then((res) => res.json())
-//       .then((data) => setClinicians(data))
-//       .catch((err) => console.error("Failed to load clinicians:", err));
+//       .then((data) => setClinician(data))
+//       .catch((err) => console.error("Failed to load users:", err));
 //   }, []);
 
-//   // Extract unique specialties
-//   const specialties = [...new Set(clinicians.map((c) => c.specialty))];
 
-//   // Filter clinicians by selected specialty
-//   const filteredClinicians = clinicians.filter((c) => c.specialty === specialty);
+//   useEffect(() => {
+//     const storedBookings = JSON.parse(localStorage.getItem("teleBookings")) || [];
+//     setPreviousBookings(storedBookings);
+//   }, [isBooked]);
 
-//   // Function to generate a unique Booking ID
-//   const generateBookingId = () => {
-//     const timestamp = Date.now().toString(36);
-//     const randomPart = Math.random().toString(36).substring(2, 7).toUpperCase();
-//     return `BOOK-${timestamp}-${randomPart}`;
+//   const resetForm = () => {
+//     setIsBooked(false);
+//     setSpecialty("General Practitioner");
+//     setClinician({ id: "", name: "" });
+//     setConsultType("Audio Consultation");
+//     setPaymentType("cashless");
+//     setTimeSlot("");
+//     const today = new Date();
+//     setDate(today.toISOString().split("T")[0]);
 //   };
 
-//   const handleBooking = () => {
-
-//     if (!specialty || !clinician) {
-//       alert("Please select both specialty and clinician before booking.");
+//   const handleConfirmBooking = () => {
+//     if (!clinician) {
+//       alert("Please select a clinician");
+//       return;
+//     }
+//     if (!timeSlot) {
+//       alert("Please select a time slot");
 //       return;
 //     }
 
-//     const bookingId = generateBookingId();
+//     const bookingId = `BOOK-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+//     // const newBooking = {
+//     //   bookingId,
+//     //   userId,
+//     //   specialty,
+//     //   clinician,
+//     //   consultType,
+//     //   paymentType,
+//     //   // date: "2025-10-30",
+//     //   date,
+//     //   timeSlot,
+//     //   createdAt: new Date().toISOString(),
+//     // };
 
-//     // Create new booking object
 //     const newBooking = {
 //       bookingId,
 //       userId,
 //       specialty,
-//       clinician,
+//       clinicianId: clinician.id,
+//       clinician: clinician.name,
 //       consultType,
-//       dateTime,
+//       paymentType,
+//       // date: "2025-10-30",
+//       date,
+//       timeSlot,
 //       createdAt: new Date().toISOString(),
 //     };
 
-//     // Get existing bookings from localStorage or initialize empty array
 //     const existing = JSON.parse(localStorage.getItem("teleBookings")) || [];
-
-//     // Add the new one
 //     existing.push(newBooking);
-
-//     // Save back to localStorage
 //     localStorage.setItem("teleBookings", JSON.stringify(existing));
 
-//     setIsBooked(true);
-
-//     // Update confirmation message
-//     const formattedDate = new Date(dateTime).toLocaleString([], {
-//       dateStyle: "medium",
-//       timeStyle: "short",
-//     });
-
-//     const confirmationMsg = `Teleconsultation booked for **${formattedDate}** in ${specialty}.`;
+//     const confirmationMsg = `✅ Booking Confirmed!\n\nSpecialty: ${specialty}\nClinician: ${clinician}\nType: ${consultType}\nPayment: ${paymentType}\nDate: ${new Date(date).toLocaleDateString()}\nTime: ${timeSlot}`;
 //     setTelehealthConfirmation(confirmationMsg);
-
+//     setIsBooked(true);
+//     setShowBookingPanel(false); // 👈 hide form after saving
 //   };
 
-// return (
-//   <Panel title="Book a Teleconsultation" icon={PhoneCallIcon}>
-//     <p className="text-gray-600 mb-6">Connect with a healthcare professional instantly or schedule an appointment.</p>
+//   return (
+//     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
+//       <div className="max-w-5xl mx-auto space-y-8">
 
-//     {isBooked ? (
-//       <div className="text-center p-8 bg-green-50 border border-green-300 rounded-lg">
-//         <ShieldCheckIcon className="w-12 h-12 text-green-500 mx-auto mb-3" />
-//         <h3 className="text-xl font-bold text-green-700">Success!</h3>
-//         <p className="text-green-800 font-medium">Your appointment is confirmed and appears in your PHR.</p>
-//         <p className="text-sm text-gray-500 mt-2">Check your PHR tab for details.</p>
-//         <Button primary={false} onClick={() => setIsBooked(false)} className="mt-4">Book Another</Button>
+//         {/* Appointment Bookings Panel (always visible) */}
+//         <Panel>
+//           <div className="flex justify-between items-center mb-4">
+//             <div className="flex items-center gap-2">
+//               <ShieldCheckIcon className="w-5 h-5 text-indigo-600" />
+//               <h2 className="text-xl font-semibold text-gray-800">Appointment Bookings</h2>
+//             </div>
+
+//             <button
+//               onClick={() => setShowBookingPanel(true)}
+//               className="flex items-center gap-1 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-3 py-1.5 rounded-lg shadow-sm transition-all"
+//             >
+//               <PlusCircle className="w-4 h-4" />
+//               Add New
+//             </button>
+//           </div>
+
+//           {previousBookings.length === 0 ? (
+//             <p className="text-gray-500 italic">No previous bookings found.</p>
+//           ) : (
+//             <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+//               <table className="min-w-full text-sm text-gray-700">
+//                 <thead className="bg-gray-100 text-gray-800 font-semibold">
+//                   <tr>
+//                     <th className="px-4 py-2 text-left">Booking ID</th>
+//                     <th className="px-4 py-2 text-left">Specialty</th>
+//                     <th className="px-4 py-2 text-left">Clinician</th>
+//                     {/* <th className="px-4 py-2 text-left">Clinician ID</th> */}
+//                     <th className="px-4 py-2 text-left">Consultation Type</th>
+//                     <th className="px-4 py-2 text-left">Date</th>
+//                     <th className="px-4 py-2 text-left">Time</th>
+//                     <th className="px-4 py-2 text-left">Payment</th>
+//                   </tr>
+//                 </thead>
+//                 <tbody>
+//                   {previousBookings
+//                     .filter((b) => b.userId === userId)
+//                     .reverse()
+//                     .map((b, i) => (
+//                       <tr
+//                         key={i}
+//                         className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}
+//                       >
+//                         <td className="px-4 py-2">{b.bookingId}</td>
+//                         <td className="px-4 py-2">{b.specialty}</td>
+//                         <td className="px-4 py-2">{b.clinician} <span className="text-xs text-gray-500">({b.clinicianId})</span></td>
+//                         {/* <td className="px-4 py-2">{b.clinicianId}</td> */}
+//                         <td className="px-4 py-2">{b.consultType}</td>
+//                         <td className="px-4 py-2">
+//                           {new Date(b.date).toLocaleDateString()}
+//                         </td>
+//                         <td className="px-4 py-2">{b.timeSlot}</td>
+//                         <td className="px-4 py-2 capitalize">{b.paymentType}</td>
+//                       </tr>
+//                     ))}
+//                 </tbody>
+//               </table>
+//             </div>
+//           )}
+//         </Panel>
+
+
+//         {/* Book a Consultation Panel (conditionally visible) */}
+//         {showBookingPanel && (
+//           <Panel>
+//             <div className="flex justify-between items-center mb-4">
+//               <div className="flex items-center gap-2">
+//                 <Phone className="w-5 h-5 text-blue-600" />
+//                 <h2 className="text-xl font-semibold text-gray-800">Book a consultation</h2>
+//               </div>
+
+//               <button
+//                 onClick={() => setShowBookingPanel(false)}
+//                 className="flex items-center gap-1 border border-gray-300 text-gray-600 text-sm font-medium px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-all"
+//               >
+//                 ✕ Close
+//               </button>
+//             </div>
+
+//             {!isBooked ? (
+//               <div className="space-y-4">
+//                 {/* Specialty */}
+//                 <label className="block">
+//                   <span className="text-gray-700 font-medium">Specialty</span>
+//                   <select
+//                     value={specialty}
+//                     onChange={(e) => {
+//                       setSpecialty(e.target.value);
+//                       setClinician("");
+//                     }}
+//                     className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-2 bg-gray-50"
+//                   >
+//                     <option value="">Select Specialty</option>
+//                     {specialties.map((sp, i) => (
+//                       <option key={i} value={sp}>
+//                         {sp}
+//                       </option>
+//                     ))}
+//                   </select>
+//                 </label>
+
+//                 {/* Clinician */}
+//                 {specialty && (
+//                   <label className="block">
+//                     <span className="text-gray-700 font-medium">Clinician</span>
+//                     <select
+//                       value={clinician.id}
+//                       onChange={(e) => {
+//                         const selected = clinicians[specialty]?.find(
+//                           (doc) => doc.id === e.target.value
+//                         );
+//                         setClinician(selected || { id: "", name: "" });
+//                       }}
+//                       className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-2 bg-gray-50"
+//                     >
+//                       <option value="">Select Clinician</option>
+//                       {clinicians[specialty]?.map((doc) => (
+//                         <option key={doc.id} value={doc.id}>
+//                           {doc.name} ({doc.id})
+//                         </option>
+//                       ))}
+//                     </select>
+
+//                   </label>
+
+//                 )}
+
+//                 {/* Consultation Type */}
+//                 <label className="block">
+//                   <span className="text-gray-700 font-medium">Consultation Type</span>
+//                   <select
+//                     value={consultType}
+//                     onChange={(e) => setConsultType(e.target.value)}
+//                     className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-2 bg-gray-50"
+//                   >
+//                     <option value="Audio Consultation">Audio Consultation</option>
+//                     <option value="Video Consultation">Video Consultation</option>
+//                   </select>
+//                 </label>
+
+//                 {/* Date Picker */}
+//                 <label className="block">
+//                   <span className="text-gray-700 font-medium">Preferred Date:</span>
+//                   <input
+//                     type="date"
+//                     value={date}
+//                     onChange={(e) => {
+//                       setDate(e.target.value);
+//                       setTimeSlot("");
+//                     }}
+//                     className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-2 bg-gray-50"
+//                     min={new Date().toISOString().split("T")[0]}
+//                   />
+//                 </label>
+
+//                 {/* Time Slots */}
+//                 {date && (
+//                   <div>
+//                     <label className="block text-gray-700 font-medium mb-3">
+//                       Available Time Slots:
+//                     </label>
+//                     <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+//                       {timeSlots.map((slot) => (
+//                         <button
+//                           key={slot}
+//                           type="button"
+//                           onClick={() => setTimeSlot(slot)}
+//                           className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${timeSlot === slot
+//                             ? "bg-blue-600 text-white shadow-md"
+//                             : "bg-gray-100 text-gray-700 hover:bg-blue-50 hover:text-blue-600 border border-gray-300"
+//                             }`}
+//                         >
+//                           {slot}
+//                         </button>
+//                       ))}
+//                     </div>
+//                   </div>
+//                 )}
+
+//                 {/* Payment Type */}
+//                 <div>
+//                   <label className="block text-gray-700 font-medium mb-3">
+//                     Payment Type
+//                   </label>
+//                   <div className="space-y-3">
+//                     <label className="flex items-center cursor-pointer">
+//                       <input
+//                         type="radio"
+//                         name="paymentType"
+//                         value="cashless"
+//                         checked={paymentType === "cashless"}
+//                         onChange={(e) => setPaymentType(e.target.value)}
+//                         className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-2 focus:ring-blue-500"
+//                       />
+//                       <span className="ml-3 text-gray-700">Cashless</span>
+//                     </label>
+//                     <label className="flex items-center cursor-pointer">
+//                       <input
+//                         type="radio"
+//                         name="paymentType"
+//                         value="non-cashless"
+//                         checked={paymentType === "non-cashless"}
+//                         onChange={(e) => setPaymentType(e.target.value)}
+//                         className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-2 focus:ring-blue-500"
+//                       />
+//                       <span className="ml-3 text-gray-700">Non-Cashless</span>
+//                     </label>
+//                   </div>
+//                 </div>
+
+//                 <Button onClick={handleConfirmBooking}>Confirm Booking</Button>
+//               </div>
+//             ) : (
+//               <div className="text-center p-8 bg-green-50 border border-green-300 rounded-lg">
+//                 <ShieldCheckIcon className="w-12 h-12 text-green-500 mx-auto mb-3" />
+//                 <h3 className="text-xl font-bold text-green-700">Success!</h3>
+//                 <p className="text-green-800 font-medium">
+//                   Your appointment is confirmed and saved.
+//                 </p>
+//                 <Button
+//                   primary={false}
+//                   onClick={resetForm}
+//                   className="mt-4"
+//                 >
+//                   Book Another
+//                 </Button>
+//               </div>
+//             )}
+//           </Panel>
+//         )}
 //       </div>
-//     ) : (
-//       <div className="space-y-4">
-//         <label className="block">
-//           <span className="text-gray-700">Specialty</span>
-
-//           <select value={specialty}
-//             onChange={(e) => {
-//               setSpecialty(e.target.value);
-//               setClinician(""); // reset clinician when specialty changes
-//             }}
-//             className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-2 bg-gray-50">
-//             <option value="">Select Specialty</option>
-//             {specialties.map((sp, i) => (
-//               <option key={i} value={sp}>
-//                 {sp}
-//               </option>
-//             ))}
-//           </select>
-//         </label>
-
-//         <label className="block">
-//           <span className="text-gray-700">Consultation Type</span>
-//           <select
-//             value={consultType}
-//             onChange={(e) => setConsultType(e.target.value)}
-//             className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-2 bg-gray-50"
-//           >
-//             <option value="Teleconsultation">Teleconsultation</option>
-//             <option value="Video Consultation">Video Consultation</option>
-//           </select>
-//         </label>
-
-//         <label className="block">
-//           <span className="text-gray-700">Preferred Date/Time:</span>
-//           <input type="datetime-local" value={dateTime} onChange={(e) => setDateTime(e.target.value)}
-//             className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-2 bg-gray-50"
-//           />
-//         </label>
-//         <Button onClick={handleBooking}>
-//           Confirm Booking
-//         </Button>
-//       </div>
-//     )}
-//   </Panel>
-// );
+//     </div>
+//   );
 // };
+
+
 
 /**
  * Tab 3: Claims and Reports
@@ -2113,7 +2360,8 @@ const LoginScreen = ({ handleLogin }) => {
 
   //Load users.json once on mount
   useEffect(() => {
-    fetch("/data/users.json")
+    // fetch("/data/users.json")
+    fetch(`${import.meta.env.BASE_URL}data/users.json`)
       .then((res) => res.json())
       .then((data) => setUsers(data))
       .catch((err) => console.error("Failed to load users:", err));
@@ -2140,18 +2388,6 @@ const LoginScreen = ({ handleLogin }) => {
       alert("Invalid credentials. Please try again.");
     }
   };
-
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-
-
-
-  //   if (username && password) {
-  //     handleLogin();
-  //   } else {
-  //     alert('Please enter a username and password.');
-  //   }
-  // };
 
   return (
     <div className="min-h-screen bg-indigo-600 flex items-center justify-center p-4 font-sans" style={{ background: "linear-gradient(180deg, #002940 0%, #16376A 34.13%, #154C91 52.88%, #16376A 69.71%, #002940 100%)", }}>
