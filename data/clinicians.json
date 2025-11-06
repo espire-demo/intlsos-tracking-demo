@@ -1,10 +1,135 @@
 [
-  { "name": "Dr. Emily Clark", "specialty": "General Practitioner" },
-  { "name": "Dr. John Doe", "specialty": "General Practitioner" },
-  { "name": "Dr. Sarah Lee", "specialty": "Cardiology" },
-  { "name": "Dr. Robert Smith", "specialty": "Cardiology" },
-  { "name": "Dr. Karen Patel", "specialty": "Dermatology" },
-  { "name": "Dr. Michael Brown", "specialty": "Dermatology" },
-  { "name": "Dr. Alex Johnson", "specialty": "Mental Health" },
-  { "name": "Dr. Maria Gomez", "specialty": "Mental Health" }
+  {
+    "id": "C-1001",
+    "name": "Dr. Daniel Martin",
+    "specialty": "General Practitioner",
+    "username": "d.martin",
+    "pwd": "pass1001"
+  },
+  {
+    "id": "C-1002",
+    "name": "Dr. Laura Robinson",
+    "specialty": "General Practitioner",
+    "username": "l.robinson",
+    "pwd": "pass1002"
+  },
+  {
+    "id": "C-1003",
+    "name": "Dr. Mark Anderson",
+    "specialty": "General Practitioner",
+    "username": "m.anderson",
+    "pwd": "pass1003"
+  },
+  {
+    "id": "C-1004",
+    "name": "Dr. Sarah Johnson",
+    "specialty": "Cardiology",
+    "username": "s.johnson",
+    "pwd": "pass1004"
+  },
+  {
+    "id": "C-1005",
+    "name": "Dr. Michael Chen",
+    "specialty": "Cardiology",
+    "username": "m.chen",
+    "pwd": "pass1005"
+  },
+  {
+    "id": "C-1006",
+    "name": "Dr. Robert Williams",
+    "specialty": "Cardiology",
+    "username": "r.williams",
+    "pwd": "pass1006"
+  },
+  {
+    "id": "C-1007",
+    "name": "Dr. Emily Davis",
+    "specialty": "Cardiology",
+    "username": "e.davis",
+    "pwd": "pass1007"
+  },
+  {
+    "id": "C-1008",
+    "name": "Dr. Lisa Anderson",
+    "specialty": "Dermatology",
+    "username": "l.anderson",
+    "pwd": "pass1008"
+  },
+  {
+    "id": "C-1009",
+    "name": "Dr. James Martinez",
+    "specialty": "Dermatology",
+    "username": "j.martinez",
+    "pwd": "pass1009"
+  },
+  {
+    "id": "C-1010",
+    "name": "Dr. Patricia Taylor",
+    "specialty": "Dermatology",
+    "username": "p.taylor",
+    "pwd": "pass1010"
+  },
+  {
+    "id": "C-1011",
+    "name": "Dr. Jennifer Brown",
+    "specialty": "Pediatrics",
+    "username": "j.brown",
+    "pwd": "pass1011"
+  },
+  {
+    "id": "C-1012",
+    "name": "Dr. David Wilson",
+    "specialty": "Pediatrics",
+    "username": "d.wilson",
+    "pwd": "pass1012"
+  },
+  {
+    "id": "C-1013",
+    "name": "Dr. Maria Garcia",
+    "specialty": "Pediatrics",
+    "username": "m.garcia",
+    "pwd": "pass1013"
+  },
+  {
+    "id": "C-1014",
+    "name": "Dr. Christopher Lee",
+    "specialty": "Orthopedics",
+    "username": "c.lee",
+    "pwd": "pass1014"
+  },
+  {
+    "id": "C-1015",
+    "name": "Dr. Amanda White",
+    "specialty": "Orthopedics",
+    "username": "a.white",
+    "pwd": "pass1015"
+  },
+  {
+    "id": "C-1016",
+    "name": "Dr. Kevin Thompson",
+    "specialty": "Orthopedics",
+    "username": "k.thompson",
+    "pwd": "pass1016"
+  },
+  {
+    "id": "C-1017",
+    "name": "Dr. Rachel Moore",
+    "specialty": "Neurology",
+    "username": "r.moore",
+    "pwd": "pass1017"
+  },
+  {
+    "id": "C-1018",
+    "name": "Dr. Thomas Jackson",
+    "specialty": "Neurology",
+    "username": "t.jackson",
+    "pwd": "pass1018"
+  },
+  {
+    "id": "C-1019",
+    "name": "Dr. Susan Harris",
+    "specialty": "Neurology",
+    "username": "s.harris",
+    "pwd": "pass1019"
+  }
 ]
