@@ -226,7 +226,7 @@ const PatientEMRDashboard = ({ setActivePatient, user }) => {
                 description="Initiate consultations, manage prescriptions, and access detailed patient records via deeplink."
             />
 
-            <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+            <div className="bg-white rounded-xl shadow-lg overflow-auto border border-gray-200">
                 {combinedPatients.length === 0 ? (
                     <p className="text-center text-gray-500 p-6">
                         No patients found for this clinician.
@@ -600,8 +600,8 @@ const Dashboard = ({ user, onLogout }) => {
     return (
         <div className="min-h-screen flex bg-gray-100">
             {/* Sidebar Navigation */}
-            <nav className="hidden md:flex flex-col w-64 text-white p-6 shadow-2xl" style={{ backgroundColor: bgDark }}>
-                <div className="text-2xl font-extrabold mb-10" style={{ color: accentColor }}>
+            <nav className="hidden md:flex flex-col w-74 text-white p-6 shadow-2xl" style={{background: "linear-gradient(to right, #2c3e50, #4ca1af)",}}>
+                <div className="text-3xl font-extrabold mb-8 text-white text-center">
                     Clinician Portal
                 </div>
                 <div className="space-y-4 flex-grow">
@@ -637,7 +637,7 @@ const Dashboard = ({ user, onLogout }) => {
             </nav>
 
             {/* Main Content Area */}
-            <main className="flex-1 p-4 md:p-8 overflow-y-auto">
+            <main className="flex-1 p-4 md:p-8 overflow-y-auto" style={{background: "linear-gradient(180deg, #002940 0%, #16376A 34.13%, #154C91 52.88%, #16376A 69.71%, #002940 100%)",}}>
                 {/* Mobile Tab Navigation */}
                 <div className="md:hidden mb-6 bg-white p-4 rounded-xl shadow-md">
                     <label className="block text-sm font-medium text-gray-700 mb-2">Navigation</label>
@@ -652,8 +652,8 @@ const Dashboard = ({ user, onLogout }) => {
                     </select>
                 </div>
 
-                <h1 className="text-4xl font-extrabold text-gray-900 mb-2">Welcome, {user.name}</h1>
-                <p className="text-lg text-gray-500 mb-8">{user.specialty} Dashboard</p>
+                <h1 className="text-4xl font-extrabold text-white mb-2">Welcome, {user.name}</h1>
+                <p className="text-lg text-white mb-8">{user.specialty} Dashboard</p>
 
                 <div className="bg-white p-6 rounded-xl shadow-2xl min-h-[70vh]">
                     {renderContent()}
@@ -710,17 +710,13 @@ const LoginPage = ({ onLogin }) => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-            <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-2xl border-t-4" style={{ borderColor: primaryColor }}>
-                <div className="flex justify-center mb-6">
-                    <Stethoscope className="w-12 h-12" style={{ color: primaryColor }} />
-                </div>
-                <h2 className="text-3xl font-bold text-center text-gray-800 mb-2">Clinician Portal Login</h2>
-                <p className="text-center text-gray-500 mb-8">Secure Access Required</p>
+       <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4" style={{background: "linear-gradient(180deg, #002940 0%, #16376A 34.13%, #154C91 52.88%, #16376A 69.71%, #002940 100%)",}}>
+            <div className="w-full max-w-md bg-white p-12 rounded-2xl shadow-2xl" style={{background: "linear-gradient(to right, #2c3e50, #4ca1af)",}}>
+                <h2 className="text-4xl font-bold text-center text-white mb-2">Clinician Portal Login</h2>
+                <p className="text-center text-white mb-6">Secure Access Required</p>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="username">Username</label>
                         <input
                             type="text"
                             id="username"
@@ -732,7 +728,6 @@ const LoginPage = ({ onLogin }) => {
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="password">Password</label>
                         <input
                             type="password"
                             id="password"
@@ -753,14 +748,12 @@ const LoginPage = ({ onLogin }) => {
 
                     <button
                         type="submit"
-                        className="w-full flex items-center justify-center text-white font-bold py-3 px-4 rounded-lg transition duration-300 shadow-lg shadow-teal-200"
-                        style={{ backgroundColor: primaryColor, hover: { backgroundColor: bgDark } }}
-                    >
+                        className="w-full flex items-center justify-center bg-primary hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg transition duration-300">
                         <LogIn className="w-5 h-5 mr-2" />
-                        Sign In Securely
+                        Sign In
                     </button>
                 </form>
-                <p className="text-center text-xs text-gray-400 mt-6">Use "doctor" and "securepass" to access the demo.</p>
+                <p className="text-sm text-white mt-6 text-center">Forgot password? | Need to register?</p>
             </div>
         </div>
     );

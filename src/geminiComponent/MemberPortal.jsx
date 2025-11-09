@@ -352,7 +352,9 @@ const Teleconsultation = ({ setTelehealthConfirmation, user }) => {
   const [isBooked, setIsBooked] = useState(false);
   const [previousBookings, setPreviousBookings] = useState([]);
   const [showBookingPanel, setShowBookingPanel] = useState(false);
-  const [clinicians, setClinicians] = useState([]); // ✅ holds list of all clinicians
+  const [clinicians, setClinicians] = useState([]);
+  const [conditions, setConditions] = useState([]); // list of available conditions
+  const [condition, setCondition] = useState("");   // selected condition
 
   const [date, setDate] = useState(() => {
     const today = new Date();
@@ -386,6 +388,13 @@ const Teleconsultation = ({ setTelehealthConfirmation, user }) => {
     setPreviousBookings(storedBookings);
   }, [isBooked]);
 
+  // Load dynamic care plan conditions
+  useEffect(() => {
+    const storedPlans = JSON.parse(localStorage.getItem("carePlans")) || [];
+    const uniqueConditions = [...new Set(storedPlans.map(p => p.title))];
+    setConditions(uniqueConditions);
+  }, []);
+
   const resetForm = () => {
     setIsBooked(false);
     setSpecialty("General Practitioner");
@@ -393,6 +402,7 @@ const Teleconsultation = ({ setTelehealthConfirmation, user }) => {
     setConsultType("Audio Consultation");
     setPaymentType("cashless");
     setTimeSlot("");
+    setCondition("");
     const today = new Date();
     setDate(today.toISOString().split("T")[0]);
   };
@@ -407,7 +417,7 @@ const Teleconsultation = ({ setTelehealthConfirmation, user }) => {
       return;
     }
 
-    const bookingId = `BOOK-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    const bookingId = `BOOK-${Math.floor(10000000 + Math.random() * 90000000)}`;
     const newBooking = {
       bookingId,
       userId,
@@ -418,6 +428,7 @@ const Teleconsultation = ({ setTelehealthConfirmation, user }) => {
       paymentType,
       date,
       timeSlot,
+      condition,
       createdAt: new Date().toISOString(),
     };
 
@@ -431,7 +442,7 @@ const Teleconsultation = ({ setTelehealthConfirmation, user }) => {
     setShowBookingPanel(false);
   };
 
-  // ✅ Filter clinicians by specialty
+  // Filter clinicians by specialty
   const filteredClinicians = clinicians.filter(
     (doc) => doc.specialty === specialty
   );
@@ -467,6 +478,7 @@ const Teleconsultation = ({ setTelehealthConfirmation, user }) => {
                   <tr>
                     <th className="px-4 py-2 text-left">Booking ID</th>
                     <th className="px-4 py-2 text-left">Specialty</th>
+                    <th className="px-4 py-2 text-left">Condition</th>
                     <th className="px-4 py-2 text-left">Clinician</th>
                     <th className="px-4 py-2 text-left">Consultation Type</th>
                     <th className="px-4 py-2 text-left">Date</th>
@@ -485,6 +497,7 @@ const Teleconsultation = ({ setTelehealthConfirmation, user }) => {
                       >
                         <td className="px-4 py-2">{b.bookingId}</td>
                         <td className="px-4 py-2">{b.specialty}</td>
+                        <td className="px-4 py-2">{b.condition}</td>
                         <td className="px-4 py-2">
                           {b.clinician}{" "}
                           <span className="text-xs text-gray-500">
@@ -545,6 +558,25 @@ const Teleconsultation = ({ setTelehealthConfirmation, user }) => {
                     ))}
                   </select>
                 </label>
+
+                {/* Condition Dropdown */}
+                <div>
+                  <label className="block text-gray-700 font-medium mb-3">
+                    Condition
+                  </label>
+                  <select
+                    value={condition}
+                    onChange={(e) => setCondition(e.target.value)}
+                    className="block w-full rounded-lg border-gray-300 shadow-sm p-2 bg-gray-50"
+                  >
+                    <option value="">Select Condition</option>
+                    {conditions.map((cond, index) => (
+                      <option key={index} value={cond}>
+                        {cond}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
                 {/* Clinician Dropdown */}
                 {filteredClinicians.length > 0 && (
@@ -615,11 +647,10 @@ const Teleconsultation = ({ setTelehealthConfirmation, user }) => {
                         key={slot}
                         type="button"
                         onClick={() => setTimeSlot(slot)}
-                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                          timeSlot === slot
-                            ? "bg-blue-600 text-white shadow-md"
-                            : "bg-gray-100 text-gray-700 hover:bg-blue-50 hover:text-blue-600 border border-gray-300"
-                        }`}
+                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${timeSlot === slot
+                          ? "bg-blue-600 text-white shadow-md"
+                          : "bg-gray-100 text-gray-700 hover:bg-blue-50 hover:text-blue-600 border border-gray-300"
+                          }`}
                       >
                         {slot}
                       </button>
@@ -1156,6 +1187,69 @@ const ClaimsAndReports = ({ setClaimRequestConfirmation, user }) => {
   };
 
   // --- Claim submission ---
+  // const handleSubmitClaim = () => {
+  //   if (!selectedBookingId) {
+  //     setClaimDocumentStatus({
+  //       type: "error",
+  //       message: "Please select a booking before submitting.",
+  //     });
+  //     return;
+  //   }
+
+  //   if (!claimDocument) {
+  //     setClaimDocumentStatus({
+  //       type: "error",
+  //       message: "Please upload claim support document.",
+  //     });
+  //     return;
+  //   }
+
+  //   const newClaimRequest = {
+  //     bookingId: selectedBookingId,
+  //     userId,
+  //     serviceDate,
+  //     claimDocument: claimDocument.name,
+  //     createdAt: new Date().toISOString(),
+  //   };
+
+  //   try {
+  //     const existingClaims =
+  //       JSON.parse(localStorage.getItem("claimRequests")) || [];
+
+  //     // prevent duplicate claims for same booking
+  //     const duplicate = existingClaims.some(
+  //       (c) => c.bookingId === selectedBookingId
+  //     );
+
+  //     if (duplicate) {
+  //       setClaimDocumentStatus({
+  //         type: "error",
+  //         message: "A claim for this booking already exists.",
+  //       });
+  //       return;
+  //     }
+
+  //     existingClaims.push(newClaimRequest);
+  //     localStorage.setItem("claimRequests", JSON.stringify(existingClaims));
+
+  //     setIsClaimSubmit(true);
+  //     const formattedDate = new Date(serviceDate).toLocaleString([], {
+  //       dateStyle: "medium",
+  //       timeStyle: "short",
+  //     });
+
+  //     const confirmationMsg = `Claim request submitted for booking **${selectedBookingId}** on ${formattedDate}.`;
+  //     setClaimRequestConfirmation(confirmationMsg);
+
+  //   } catch (error) {
+  //     console.error("Error saving claim:", error);
+  //     setClaimDocumentStatus({
+  //       type: "error",
+  //       message: "Error saving claim. Please try again.",
+  //     });
+  //   }
+  // };
+
   const handleSubmitClaim = () => {
     if (!selectedBookingId) {
       setClaimDocumentStatus({
@@ -1172,14 +1266,6 @@ const ClaimsAndReports = ({ setClaimRequestConfirmation, user }) => {
       });
       return;
     }
-
-    const newClaimRequest = {
-      bookingId: selectedBookingId,
-      userId,
-      serviceDate,
-      claimDocument: claimDocument.name,
-      createdAt: new Date().toISOString(),
-    };
 
     try {
       const existingClaims =
@@ -1198,18 +1284,35 @@ const ClaimsAndReports = ({ setClaimRequestConfirmation, user }) => {
         return;
       }
 
+      //Auto-generate a unique claimId
+      const newClaimId = `CLM-${Math.floor(100000 + Math.random() * 900000)}`;
+
+      const newClaimRequest = {
+        claimId: newClaimId, // <-- added here
+        bookingId: selectedBookingId,
+        userId,
+        serviceDate,
+        claimDocument: claimDocument.name,
+        createdAt: new Date().toISOString(),
+        status: "Pending", // optional default
+      };
+
       existingClaims.push(newClaimRequest);
       localStorage.setItem("claimRequests", JSON.stringify(existingClaims));
 
       setIsClaimSubmit(true);
+
       const formattedDate = new Date(serviceDate).toLocaleString([], {
         dateStyle: "medium",
         timeStyle: "short",
       });
 
-      const confirmationMsg = `Claim request submitted for booking **${selectedBookingId}** on ${formattedDate}.`;
+      const confirmationMsg = `Claim **${newClaimId}** submitted for booking **${selectedBookingId}** on ${formattedDate}.`;
       setClaimRequestConfirmation(confirmationMsg);
-
+      setClaimDocumentStatus({
+        type: "success",
+        message: "Claim submitted successfully!",
+      });
     } catch (error) {
       console.error("Error saving claim:", error);
       setClaimDocumentStatus({
@@ -1351,6 +1454,7 @@ const ClaimsAndReports = ({ setClaimRequestConfirmation, user }) => {
               <table className="min-w-full text-sm text-gray-700">
                 <thead className="bg-gray-100 text-gray-800 font-semibold">
                   <tr>
+                    <th className="px-4 py-2 text-left">Claim ID</th>
                     <th className="px-4 py-2 text-left">Booking ID</th>
                     <th className="px-4 py-2 text-left">Service Date</th>
                     <th className="px-4 py-2 text-left">Document</th>
@@ -1366,6 +1470,7 @@ const ClaimsAndReports = ({ setClaimRequestConfirmation, user }) => {
                         key={i}
                         className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}
                       >
+                        <td className="px-4 py-2 font-medium">{c.claimId}</td>
                         <td className="px-4 py-2 font-medium">{c.bookingId}</td>
                         <td className="px-4 py-2">
                           {new Date(c.serviceDate).toLocaleString([], {
@@ -1782,12 +1887,58 @@ const RPM = ({ user }) => {
     <div className="space-y-8">
       {/* RPM Header */}
       <Panel title="Remote Patient Monitoring (RPM)" icon={HeartPulseIcon}>
-        <p className="text-gray-600 mb-6">
+        <p className="text-gray-600">
           Enroll in a personalized care plan and track your progress with integrated devices.
         </p>
 
         {/* --- Enrollment Sections --- */}
-        <div className="border p-4 rounded-lg mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Card 1 */}
+          <div className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-all border border-gray-100 p-6 mb-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              RPM Care Plan - 1 Enrollment
+            </h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Enrollment into personalized RPM care plan - 1.
+            </p>
+            <Button
+              onClick={handleEnroll1}
+              disabled={isEnrolled}
+              primary={!isEnrolled}
+              className={`w-full py-2 rounded-lg font-medium transition-all ${isEnrolled
+                  ? "bg-gray-100 text-gray-500 cursor-not-allowed"
+                  : "bg-indigo-600 hover:bg-indigo-700 text-white"
+                }`}
+            >
+              {isEnrolled ? "Enrolled in Diabetes Plan" : "Enroll Now"}
+            </Button>
+          </div>
+
+          {/* Card 2 */}
+          <div className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-all border border-gray-100 p-6 mb-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              RPM Care Plan - 2 Enrollment
+            </h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Enrollment into personalized RPM care plan - 2.
+            </p>
+            <Button
+              onClick={handleEnroll2}
+              disabled={isEnrolled2}
+              primary={!isEnrolled2}
+              className={`w-full py-2 rounded-lg font-medium transition-all ${isEnrolled2
+                  ? "bg-gray-100 text-gray-500 cursor-not-allowed"
+                  : "bg-indigo-600 hover:bg-indigo-700 text-white"
+                }`}
+            >
+              {isEnrolled2
+                ? "Enrolled in Medication Adherence Plan"
+                : "Enroll Now"}
+            </Button>
+          </div>
+        </div>
+
+        {/* <div className="border p-4 rounded-lg mb-4">
           <h3 className="font-semibold text-lg mb-2">RPM Care Plan - 1 Enrollment</h3>
           <p className="text-sm text-gray-500 mb-3">
             Enrollment into personalized RPM care plan - 1.
@@ -1815,7 +1966,7 @@ const RPM = ({ user }) => {
               ? "Enrolled in Medication Adherence Plan"
               : "Enroll Now"}
           </Button>
-        </div>
+        </div> */}
 
         {/* --- Connected Devices --- */}
         <div className="border rounded-2xl p-6 bg-white shadow-sm">

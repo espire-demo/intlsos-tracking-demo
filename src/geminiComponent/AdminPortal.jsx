@@ -1,4 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import ClaimsSubmissionTrend from "./ClaimsSubmissionTrend";
+import ClaimsList from "./ClaimsList";
+import CarePlanForm from "./CarePlanForm"; // import your form component
+
 // Assuming lucide-react is available for icons
 // If not available, use inline SVG or standard emojis
 import {
@@ -54,8 +58,8 @@ const LoginPage = ({ onLogin }) => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4" style={{background: "linear-gradient(180deg, #002940 0%, #16376A 34.13%, #154C91 52.88%, #16376A 69.71%, #002940 100%)",}}>
-      <form onSubmit={handleLogin} className="w-full max-w-md bg-white md:p-12 shadow-2xl rounded-xl transition-all duration-300 hover:shadow-3xl text-center" style={{background: "linear-gradient(to right, #2c3e50, #4ca1af)",}}>
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4" style={{ background: "linear-gradient(180deg, #002940 0%, #16376A 34.13%, #154C91 52.88%, #16376A 69.71%, #002940 100%)", }}>
+      <form onSubmit={handleLogin} className="w-full max-w-md bg-white md:p-12 shadow-2xl rounded-xl transition-all duration-300 hover:shadow-3xl text-center" style={{ background: "linear-gradient(to right, #2c3e50, #4ca1af)", }}>
         <div className="space-x-2 text-indigo-700 mb-2">
           <h1 className="text-4xl font-bold text-white ">Admin Portal Login</h1>
         </div>
@@ -102,58 +106,81 @@ const LoginPage = ({ onLogin }) => {
 /**
  * Renders the Dashboard overview.
  */
-const Dashboard = () => (
-  <div className="space-y-6 p-4 md:p-8">
-    <h2 className="text-3xl font-extrabold text-white border-b pb-2 mb-6">Admin Overview</h2>
+const Dashboard = () => {
+  const [claimRequestCount, setClaimRequestsCount] = useState(0);
+  const [carePlanCount, setCarePlanCount] = useState(0);
 
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-      {/* Metric Card 1 */}
-      <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-indigo-500">
-        <p className="text-sm font-medium text-gray-500">Pending Claims</p>
-        <p className="text-4xl font-bold text-gray-900 mt-1">4</p>
-        <p className="text-xs text-green-500 mt-2">+1 since last hour</p>
+  useEffect(() => {
+    const claimRequests = JSON.parse(localStorage.getItem("claimRequests")) || [];
+    setClaimRequestsCount(claimRequests.length);
+  }, []);
+
+  useEffect(() => {
+    const storedPlans = JSON.parse(localStorage.getItem("carePlans")) || [];
+    const approvedPlans = storedPlans.filter(
+      (plan) => plan.status === "Approved"
+    );
+    setCarePlanCount(approvedPlans.length);
+  }, []);
+
+
+
+  return (
+    <div className="space-y-6 p-4 md:p-8">
+      <h2 className="text-3xl font-extrabold text-white border-b pb-2 mb-6">Admin Overview</h2>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Metric Card 1 */}
+        <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-indigo-500">
+          <p className="text-sm font-medium text-gray-500">Pending Claims</p>
+          <p className="text-4xl font-bold text-gray-900 mt-1">{claimRequestCount}</p>
+          <p className="text-xs text-green-500 mt-2">+1 since last hour</p>
+        </div>
+
+        {/* Metric Card 2 */}
+        <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-sky-500">
+          <p className="text-sm font-medium text-gray-500">Active RPM Users</p>
+          <p className="text-4xl font-bold text-gray-900 mt-1">2,301</p>
+          <p className="text-xs text-gray-500 mt-2">Target: 3,000</p>
+        </div>
+
+        {/* Metric Card 3 */}
+        <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-teal-500">
+          <p className="text-sm font-medium text-gray-500">New Care Plans</p>
+          <p className="text-4xl font-bold text-gray-900 mt-1">{carePlanCount}</p>
+          <p className="text-xs text-green-500 mt-2">Approved this week</p>
+        </div>
+
+        {/* Metric Card 4 */}
+        <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-red-500">
+          <p className="text-sm font-medium text-gray-500">Urgent Alerts</p>
+          <p className="text-4xl font-bold text-gray-900 mt-1">2</p>
+          <p className="text-xs text-red-500 mt-2">Require immediate action</p>
+        </div>
       </div>
 
-      {/* Metric Card 2 */}
-      <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-sky-500">
-        <p className="text-sm font-medium text-gray-500">Active RPM Users</p>
-        <p className="text-4xl font-bold text-gray-900 mt-1">2,301</p>
-        <p className="text-xs text-gray-500 mt-2">Target: 3,000</p>
-      </div>
-
-      {/* Metric Card 3 */}
-      <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-teal-500">
-        <p className="text-sm font-medium text-gray-500">New Care Plans</p>
-        <p className="text-4xl font-bold text-gray-900 mt-1">21</p>
-        <p className="text-xs text-green-500 mt-2">Approved this week</p>
-      </div>
-
-      {/* Metric Card 4 */}
-      <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-red-500">
-        <p className="text-sm font-medium text-gray-500">Urgent Alerts</p>
-        <p className="text-4xl font-bold text-gray-900 mt-1">2</p>
-        <p className="text-xs text-red-500 mt-2">Require immediate action</p>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-4">
+        <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg">
+          <h3 className="text-xl font-semibold text-gray-800 mb-4">Claims Submission Trend</h3>
+          <p className="text-center text-gray-500 h-48 flex items-center justify-center">
+            {/* [Placeholder for Chart: Monthly Claims Volume] */}
+            <div className="p-6 space-y-6">
+              <ClaimsSubmissionTrend />
+            </div>
+          </p>
+        </div>
+        <div className="bg-white p-6 rounded-xl shadow-lg">
+          <h3 className="text-xl font-semibold text-gray-800 mb-4">Top Workflow Approvals</h3>
+          <ul className="space-y-2">
+            <li className="flex justify-between items-center text-gray-700"><span>Physician Review</span> <span className="font-semibold text-indigo-600">92%</span></li>
+            <li className="flex justify-between items-center text-gray-700"><span>Billing Audit</span> <span className="font-semibold text-indigo-600">85%</span></li>
+            <li className="flex justify-between items-center text-gray-700"><span>Patient Enrollment</span> <span className="font-semibold text-indigo-600">98%</span></li>
+          </ul>
+        </div>
       </div>
     </div>
-
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-4">
-      <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg">
-        <h3 className="text-xl font-semibold text-gray-800 mb-4">Claims Submission Trend</h3>
-        <p className="text-center text-gray-500 h-48 flex items-center justify-center">
-          [Placeholder for Chart: Monthly Claims Volume]
-        </p>
-      </div>
-      <div className="bg-white p-6 rounded-xl shadow-lg">
-        <h3 className="text-xl font-semibold text-gray-800 mb-4">Top Workflow Approvals</h3>
-        <ul className="space-y-2">
-          <li className="flex justify-between items-center text-gray-700"><span>Physician Review</span> <span className="font-semibold text-indigo-600">92%</span></li>
-          <li className="flex justify-between items-center text-gray-700"><span>Billing Audit</span> <span className="font-semibold text-indigo-600">85%</span></li>
-          <li className="flex justify-between items-center text-gray-700"><span>Patient Enrollment</span> <span className="font-semibold text-indigo-600">98%</span></li>
-        </ul>
-      </div>
-    </div>
-  </div>
-);
+  );
+};
 
 /**
  * Manages Digital Wallet Claim Review and Approval.
@@ -168,6 +195,7 @@ const ClaimsManagement = () => {
   };
 
   const getStatusColor = (status) => {
+
     switch (status) {
       case 'Pending': return 'bg-yellow-100 text-yellow-800';
       case 'Approved': return 'bg-green-100 text-green-800';
@@ -184,7 +212,7 @@ const ClaimsManagement = () => {
       <p className="text-white">Review and approve or reject claims submitted by users for digital wallet reimbursement.</p>
 
       <div className="bg-white p-4 rounded-xl shadow-lg overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
+        {/* <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
               {['Claim ID', 'User', 'Amount', 'Type', 'Status', 'Actions'].map((header) => (
@@ -232,7 +260,8 @@ const ClaimsManagement = () => {
               </tr>
             ))}
           </tbody>
-        </table>
+        </table> */}
+        <ClaimsList />
       </div>
     </div>
   );
@@ -241,53 +270,186 @@ const ClaimsManagement = () => {
 /**
  * Manages the creation and editing of RPM Care Plan Templates.
  */
-const CarePlanTemplates = () => (
-  <div className="space-y-6 p-4 md:p-8">
-    <h2 className="text-3xl font-extrabold text-white border-b pb-2 mb-6">
-      RPM: Care Plan Templates Management
-    </h2>
-    <p className="text-white">Define reusable templates for conditions like Hypertension, Diabetes, and COPD.</p>
+const CarePlanTemplates = () => {
+  const [carePlans, setCarePlans] = useState([]);
+  const [showForm, setShowForm] = useState(false);
 
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {/* Template Card 1 */}
-      <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300 border-l-4 border-sky-500">
-        <h3 className="text-xl font-semibold mb-2 flex justify-between items-start">
-          <span>Hypertension Management</span>
-          <span className="text-sm font-normal text-gray-500">V1.2</span>
-        </h3>
-        <p className="text-gray-600 text-sm">Focuses on daily BP readings, medication adherence, and weekly dietitian check-ins.</p>
-        <div className="mt-4 flex space-x-2">
-          <span className="text-xs bg-gray-100 px-3 py-1 rounded-full">30-day plan</span>
-          <span className="text-xs bg-gray-100 px-3 py-1 rounded-full">Daily BP</span>
-          <span className="text-xs bg-gray-100 px-3 py-1 rounded-full">Medication</span>
-        </div>
-        <button className="mt-4 text-indigo-600 hover:text-indigo-800 font-medium">Edit Template</button>
+  // Load existing templates from localStorage on mount
+  useEffect(() => {
+    const stored = JSON.parse(localStorage.getItem("carePlans")) || [];
+    setCarePlans(stored);
+  }, []);
+
+  // Save new care plan to localStorage
+  const handleSaveCarePlan = (newPlan) => {
+    const updatedPlans = [...carePlans, { ...newPlan, status: "Pending" }];
+    setCarePlans(updatedPlans);
+    localStorage.setItem("carePlans", JSON.stringify(updatedPlans));
+    setShowForm(false);
+  };
+
+  // Toggle status between Approved / Pending
+  const toggleStatus = (index) => {
+    const updatedPlans = carePlans.map((plan, i) =>
+      i === index
+        ? {
+          ...plan,
+          status: plan.status === "Approved" ? "Pending" : "Approved",
+        }
+        : plan
+    );
+    setCarePlans(updatedPlans);
+    localStorage.setItem("carePlans", JSON.stringify(updatedPlans));
+  };
+
+  return (
+    <div className="space-y-6 p-4 md:p-8">
+      <h2 className="text-3xl font-extrabold text-white border-b pb-2 mb-6">
+        RPM: Care Plan Templates Management
+      </h2>
+      <p className="text-white">
+        Define reusable templates for conditions like Hypertension, Diabetes,
+        COPD, and Mental Health.
+      </p>
+
+      {/* Templates Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {carePlans.length > 0 ? (
+          carePlans.map((plan, index) => (
+            <div
+              key={index}
+              className={`bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300 border-l-4 ${index % 2 === 0 ? "border-sky-500" : "border-amber-500"
+                }`}
+            >
+              <h3 className="text-xl font-semibold mb-2 flex justify-between items-start">
+                <span>{plan.title}</span>
+                <span className="text-sm font-normal text-gray-500">
+                  {plan.version || "v1.0"}
+                </span>
+              </h3>
+              <p className="text-gray-600 text-sm">{plan.description}</p>
+
+              {plan.tags?.length > 0 && (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {plan.tags.map((tag, i) => (
+                    <span
+                      key={i}
+                      className="text-xs bg-gray-100 px-3 py-1 rounded-full"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* Buttons */}
+              <div className="mt-4 flex justify-between items-center">
+                <button className="text-indigo-600 hover:text-indigo-800 font-medium">
+                  Edit Template
+                </button>
+
+                <button
+                  onClick={() => toggleStatus(index)}
+                  className={`text-white text-sm px-3 py-1 rounded-lg shadow-md transition duration-200 ${plan.status === "Approved"
+                      ? "bg-yellow-500 hover:bg-yellow-600"
+                      : "bg-green-500 hover:bg-green-600"
+                    }`}
+                >
+                  {plan.status === "Approved" ? "Set Pending" : "Approve"}
+                </button>
+              </div>
+
+              {/* Status Badge */}
+              <div className="mt-3">
+                <span
+                  className={`text-xs font-semibold px-2 py-1 rounded-full ${plan.status === "Approved"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-yellow-100 text-yellow-700"
+                    }`}
+                >
+                  {plan.status || "Pending"}
+                </span>
+              </div>
+            </div>
+          ))
+        ) : (
+          <p className="text-gray-300 text-center col-span-2">
+            No care plan templates available. Create one below!
+          </p>
+        )}
       </div>
 
-      {/* Template Card 2 */}
-      <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300 border-l-4 border-amber-500">
-        <h3 className="text-xl font-semibold mb-2 flex justify-between items-start">
-          <span>Diabetes Monitoring</span>
-          <span className="text-sm font-normal text-gray-500">V2.0</span>
-        </h3>
-        <p className="text-gray-600 text-sm">Includes continuous glucose monitoring (CGM) data collection and bi-weekly endocrinologist review.</p>
-        <div className="mt-4 flex space-x-2">
-          <span className="text-xs bg-gray-100 px-3 py-1 rounded-full">90-day plan</span>
-          <span className="text-xs bg-gray-100 px-3 py-1 rounded-full">CGM</span>
-          <span className="text-xs bg-gray-100 px-3 py-1 rounded-full">Exercise Log</span>
-        </div>
-        <button className="mt-4 text-indigo-600 hover:text-indigo-800 font-medium">Edit Template</button>
+      {/* Create New Template Button */}
+      <div className="mt-8">
+        <button
+          onClick={() => setShowForm((prev) => !prev)}
+          className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-md hover:bg-indigo-700 transition duration-200"
+        >
+          <Icons.FileText className="w-5 h-5 mr-2" />
+          {showForm ? "Cancel" : "Create New Template"}
+        </button>
       </div>
-    </div>
 
-    <div className="mt-8">
-      <button className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-md hover:bg-indigo-700 transition duration-200">
-        <Icons.FileText className="w-5 h-5 mr-2" />
-        Create New Template
-      </button>
+      {/* Show Form Below Button */}
+      {showForm && (
+        <div className="mt-6">
+          <CarePlanForm onSave={handleSaveCarePlan} />
+        </div>
+      )}
     </div>
-  </div>
-);
+  );
+};
+
+
+
+
+// const CarePlanTemplates = () => (
+//   <div className="space-y-6 p-4 md:p-8">
+//     <h2 className="text-3xl font-extrabold text-white border-b pb-2 mb-6">
+//       RPM: Care Plan Templates Management
+//     </h2>
+//     <p className="text-white">Define reusable templates for conditions like Hypertension, Diabetes, and COPD.</p>
+
+//     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+//       {/* Template Card 1 */}
+//       <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300 border-l-4 border-sky-500">
+//         <h3 className="text-xl font-semibold mb-2 flex justify-between items-start">
+//           <span>Hypertension Management</span>
+//           <span className="text-sm font-normal text-gray-500">V1.2</span>
+//         </h3>
+//         <p className="text-gray-600 text-sm">Focuses on daily BP readings, medication adherence, and weekly dietitian check-ins.</p>
+//         <div className="mt-4 flex space-x-2">
+//           <span className="text-xs bg-gray-100 px-3 py-1 rounded-full">30-day plan</span>
+//           <span className="text-xs bg-gray-100 px-3 py-1 rounded-full">Daily BP</span>
+//           <span className="text-xs bg-gray-100 px-3 py-1 rounded-full">Medication</span>
+//         </div>
+//         <button className="mt-4 text-indigo-600 hover:text-indigo-800 font-medium">Edit Template</button>
+//       </div>
+
+//       {/* Template Card 2 */}
+//       <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300 border-l-4 border-amber-500">
+//         <h3 className="text-xl font-semibold mb-2 flex justify-between items-start">
+//           <span>Diabetes Monitoring</span>
+//           <span className="text-sm font-normal text-gray-500">V2.0</span>
+//         </h3>
+//         <p className="text-gray-600 text-sm">Includes continuous glucose monitoring (CGM) data collection and bi-weekly endocrinologist review.</p>
+//         <div className="mt-4 flex space-x-2">
+//           <span className="text-xs bg-gray-100 px-3 py-1 rounded-full">90-day plan</span>
+//           <span className="text-xs bg-gray-100 px-3 py-1 rounded-full">CGM</span>
+//           <span className="text-xs bg-gray-100 px-3 py-1 rounded-full">Exercise Log</span>
+//         </div>
+//         <button className="mt-4 text-indigo-600 hover:text-indigo-800 font-medium">Edit Template</button>
+//       </div>
+//     </div>
+
+//     <div className="mt-8">
+//       <button className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-md hover:bg-indigo-700 transition duration-200">
+//         <Icons.FileText className="w-5 h-5 mr-2" />
+//         Create New Template
+//       </button>
+//     </div>
+//   </div>
+// );
 
 /**
  * Manages configurable workflows and role-based approvals for RPM processes.
@@ -304,10 +466,10 @@ const WorkflowManagement = () => (
       <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-green-500">
         <h3 className="text-xl font-semibold mb-3">New Patient Enrollment Workflow</h3>
         <ol className="text-sm text-gray-700 space-y-1">
-          <li className="flex items-center"><Icons.Users className="w-4 h-4 mr-2 text-green-600"/> 1. Patient Data Entry (Role: Enrollment Specialist)</li>
-          <li className="flex items-center"><Icons.FileText className="w-4 h-4 mr-2 text-green-600"/> 2. Care Plan Assignment (Role: RN/Case Manager)</li>
-          <li className="flex items-center"><Icons.ClipboardList className="w-4 h-4 mr-2 text-green-600"/> 3. Device Provisioning (Role: Logistics Admin)</li>
-          <li className="flex items-center"><Icons.Stethoscope className="w-4 h-4 mr-2 text-green-600"/> 4. Final Approval (Role: Clinical Lead) <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 ml-2 rounded-full">Requires 24h SLA</span></li>
+          <li className="flex items-center"><Icons.Users className="w-4 h-4 mr-2 text-green-600" /> 1. Patient Data Entry (Role: Enrollment Specialist)</li>
+          <li className="flex items-center"><Icons.FileText className="w-4 h-4 mr-2 text-green-600" /> 2. Care Plan Assignment (Role: RN/Case Manager)</li>
+          <li className="flex items-center"><Icons.ClipboardList className="w-4 h-4 mr-2 text-green-600" /> 3. Device Provisioning (Role: Logistics Admin)</li>
+          <li className="flex items-center"><Icons.Stethoscope className="w-4 h-4 mr-2 text-green-600" /> 4. Final Approval (Role: Clinical Lead) <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 ml-2 rounded-full">Requires 24h SLA</span></li>
         </ol>
         <button className="mt-4 text-indigo-600 hover:text-indigo-800 font-medium">Edit Workflow</button>
       </div>
@@ -316,9 +478,9 @@ const WorkflowManagement = () => (
       <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-red-500">
         <h3 className="text-xl font-semibold mb-3">Critical Alert Escalation Workflow</h3>
         <ol className="text-sm text-gray-700 space-y-1">
-          <li className="flex items-center"><Icons.Users className="w-4 h-4 mr-2 text-red-600"/> 1. Initial Triage (Role: RN Triage)</li>
-          <li className="flex items-center"><Icons.FileText className="w-4 h-4 mr-2 text-red-600"/> 2. Physician Notification (Role: Primary Care Physician)</li>
-          <li className="flex items-center"><Icons.ClipboardList className="w-4 h-4 mr-2 text-red-600"/> 3. Patient Follow-up (Role: RN Triage) <span className="text-xs bg-red-100 text-red-800 px-2 py-0.5 ml-2 rounded-full">Immediate Action</span></li>
+          <li className="flex items-center"><Icons.Users className="w-4 h-4 mr-2 text-red-600" /> 1. Initial Triage (Role: RN Triage)</li>
+          <li className="flex items-center"><Icons.FileText className="w-4 h-4 mr-2 text-red-600" /> 2. Physician Notification (Role: Primary Care Physician)</li>
+          <li className="flex items-center"><Icons.ClipboardList className="w-4 h-4 mr-2 text-red-600" /> 3. Patient Follow-up (Role: RN Triage) <span className="text-xs bg-red-100 text-red-800 px-2 py-0.5 ml-2 rounded-full">Immediate Action</span></li>
         </ol>
         <button className="mt-4 text-indigo-600 hover:text-indigo-800 font-medium">Edit Workflow</button>
       </div>
@@ -343,17 +505,17 @@ const RPMReporting = () => (
 
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       <div className="bg-white p-6 rounded-xl shadow-lg">
-        <h3 className="text-xl font-semibold mb-4 flex items-center"><Icons.BarChart3 className="w-5 h-5 mr-2 text-teal-600"/> Patient Engagement Rate</h3>
+        <h3 className="text-xl font-semibold mb-4 flex items-center"><Icons.BarChart3 className="w-5 h-5 mr-2 text-teal-600" /> Patient Engagement Rate</h3>
         <p className="text-4xl font-bold text-gray-900">89.5%</p>
         <p className="text-sm text-green-600 mt-2">Up 2.1% from Q3</p>
       </div>
       <div className="bg-white p-6 rounded-xl shadow-lg">
-        <h3 className="text-xl font-semibold mb-4 flex items-center"><Icons.Wallet className="w-5 h-5 mr-2 text-teal-600"/> Billable Hours (RPM)</h3>
+        <h3 className="text-xl font-semibold mb-4 flex items-center"><Icons.Wallet className="w-5 h-5 mr-2 text-teal-600" /> Billable Hours (RPM)</h3>
         <p className="text-4xl font-bold text-gray-900">4,120</p>
         <p className="text-sm text-gray-600 mt-2">Total billable minutes last month</p>
       </div>
       <div className="bg-white p-6 rounded-xl shadow-lg">
-        <h3 className="text-xl font-semibold mb-4 flex items-center"><Icons.Stethoscope className="w-5 h-5 mr-2 text-teal-600"/> Clinical Outcome Score</h3>
+        <h3 className="text-xl font-semibold mb-4 flex items-center"><Icons.Stethoscope className="w-5 h-5 mr-2 text-teal-600" /> Clinical Outcome Score</h3>
         <p className="text-4xl font-bold text-gray-900">7.8 / 10</p>
         <p className="text-sm text-amber-600 mt-2">Focus area for Q4</p>
       </div>
@@ -397,7 +559,7 @@ const ContentArea = ({ currentPage }) => {
  * @param {function} onLogout - Function to handle logout.
  */
 const Sidebar = ({ currentPage, onNavigate, onLogout }) => (
-  <div className="flex flex-col h-full text-white w-74 md:w-58 flex-shrink-0" style={{background: "linear-gradient(to right, #2c3e50, #4ca1af)",}}>
+  <div className="flex flex-col h-full text-white w-74 md:w-58 flex-shrink-0" style={{ background: "linear-gradient(to right, #2c3e50, #4ca1af)", }}>
     {/* Logo/Title */}
     <div className="p-6 text-3xl font-extrabold text-white border-b border-gray-700 flex items-center">
       D-Health Admin
@@ -412,11 +574,10 @@ const Sidebar = ({ currentPage, onNavigate, onLogout }) => (
           <button
             key={item.id}
             onClick={() => onNavigate(item.id)}
-            className={`flex items-center w-full p-3 rounded-lg transition duration-200 ${
-              isActive
-                ? 'bg-indigo-600 text-white shadow-lg'
-                : 'text-gray-300 hover:bg-gray-700 hover:text-white'
-            }`}
+            className={`flex items-center w-full p-3 rounded-lg transition duration-200 ${isActive
+              ? 'bg-indigo-600 text-white shadow-lg'
+              : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+              }`}
           >
             <Icon className="w-5 h-5 mr-3" />
             <span className="text-sm font-medium">{item.name}</span>
@@ -470,7 +631,7 @@ const AdminPortal = () => {
   const currentItem = NAV_ITEMS.find(item => item.id === currentPage) || NAV_ITEMS[0];
 
   return (
-    <div className="flex h-screen bg-gray-100 antialiased overflow-hidden" style={{background: "linear-gradient(180deg, #002940 0%, #16376A 34.13%, #154C91 52.88%, #16376A 69.71%, #002940 100%)",}}>
+    <div className="flex h-screen bg-gray-100 antialiased overflow-hidden" style={{ background: "linear-gradient(180deg, #002940 0%, #16376A 34.13%, #154C91 52.88%, #16376A 69.71%, #002940 100%)", }}>
       {/* 1. Static Sidebar (Desktop) */}
       <div className="hidden md:flex">
         <Sidebar
@@ -488,9 +649,8 @@ const AdminPortal = () => {
         ></div>
       )}
       <div
-        className={`fixed inset-y-0 left-0 z-50 transform ${
-          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } transition-transform duration-300 ease-in-out md:hidden`}
+        className={`fixed inset-y-0 left-0 z-50 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          } transition-transform duration-300 ease-in-out md:hidden`}
       >
         <Sidebar
           currentPage={currentPage}
@@ -502,7 +662,7 @@ const AdminPortal = () => {
       {/* 3. Main Content Area */}
       <div className="flex flex-col flex-1 overflow-hidden">
         {/* Header */}
-        <header className="flex justify-between items-center text-white border-b border-black p-4 shadow-sm flex-shrink-0" style={{minHeight: "85px"}}>
+        <header className="flex justify-between items-center text-white border-b border-black p-4 shadow-sm flex-shrink-0" style={{ minHeight: "85px" }}>
           <button
             onClick={() => setIsSidebarOpen(true)}
             className="md:hidden text-gray-500 hover:text-gray-700 p-2 rounded-lg"
