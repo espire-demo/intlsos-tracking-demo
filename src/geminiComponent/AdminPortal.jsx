@@ -157,7 +157,7 @@ const Dashboard = () => {
         {/* Metric Card 4 */}
         <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-red-500">
           <p className="text-sm font-medium text-gray-500">Urgent Alerts</p>
-          <p className="text-4xl font-bold text-gray-900 mt-1">2</p>
+          <p className="text-4xl font-bold text-gray-900 mt-1">0</p>
           <p className="text-xs text-red-500 mt-2">Require immediate action</p>
         </div>
       </div>
