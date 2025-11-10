@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { LogIn, PieChart, Wallet, Activity, Shield, LayoutDashboard, User, AlertCircle, TrendingUp, DollarSign, ExternalLink } from 'lucide-react';
 import QuarterlyServiceUtilization from "./QuarterlyServiceUtilization";
+import { useNavigate } from "react-router-dom";
 
 // --- Configuration and Mock Data ---
 
@@ -423,6 +424,7 @@ const LoginPage = ({ onLogin }) => {
  */
 const ClientPortal = () => {
     const [user, setUser] = useState(null);
+    const navigate = useNavigate();
 
     const handleLogin = (userData) => {
         setUser(userData);
@@ -430,6 +432,7 @@ const ClientPortal = () => {
 
     const handleLogout = () => {
         setUser(null);
+        navigate("/");
     };
 
     // Use useMemo to prevent unnecessary re-renders of the main view

@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { LogIn, User, Stethoscope, HeartPulse, ClipboardList, AlertTriangle, MessageSquare, ExternalLink, Activity, Plus, FileText, X } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
 
 // --- Configuration and Mock Data ---
 
@@ -309,96 +310,6 @@ const PatientEMRDashboard = ({ setActivePatient, user }) => {
     );
 };
 
-
-// const PatientEMRDashboard = ({ setActivePatient, user }) => {
-//     const [emrPatient, setEmrPatient] = useState(null); // Patient selected for EMR view
-//     const [mockPatients, setMockPatients] = useState(null);     
-
-//     const openEmrView = (patient) => {
-//         setEmrPatient(patient);
-//     };
-
-//     const closeEmrView = () => {
-//         setEmrPatient(null);
-//     };
-
-//     useEffect(() => {
-//         const stored = JSON.parse(localStorage.getItem("teleBookings")) || [];
-
-//         // Replace with your clinician ID variable
-//         const targetClinicianId = user?.id;
-
-//         const clinicianBookings = stored.filter(
-//             (b) => b.clinicianId === targetClinicianId
-//         );   
-
-//         console.log(clinicianBookings);
-
-//         setMockPatients(clinicianBookings);
-//     }, []);
-
-//     return (
-//         <div>
-//             <SectionTitle
-//                 title="My Patients & EMR Integration"
-//                 description="Initiate consultations, manage prescriptions, and access detailed patient records via deeplink."
-//             />
-
-//             <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
-//                 <table className="min-w-full divide-y divide-gray-200">
-//                     <thead className="bg-gray-50">
-//                         <tr>
-//                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Patient ID/Name</th>
-//                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Condition</th>
-//                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vitals Status</th>
-//                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-//                         </tr>
-//                     </thead>
-//                     <tbody className="bg-white divide-y divide-gray-200">
-
-//                         {mockPatients.map((patient) => (
-
-//                             <tr key={patient.id} className="hover:bg-teal-50 transition duration-150">
-//                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-//                                     {patient.bookingId} <span className="text-xs text-gray-500">({patient.userId})</span>
-//                                 </td>
-//                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{patient.condition}</td>
-//                                 <td className="px-6 py-4 whitespace-nowrap text-sm">
-//                                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${patient.vitalsStatus === 'Alert' ? 'bg-red-100 text-red-800' :
-//                                         patient.vitalsStatus === 'Warning' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'
-//                                         }`}>
-//                                         {patient.vitalsStatus}
-//                                     </span>
-//                                 </td>
-//                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-
-//                                     <button
-//                                         onClick={() => openEmrView(patient)}
-//                                         className="text-primary hover:text-teal-700 inline-flex items-center text-sm font-semibold p-2 rounded-lg bg-teal-50"
-//                                     >
-//                                         <FileText className="w-4 h-4 mr-1" /> EMR Chart
-//                                     </button>
-
-//                                     <button
-//                                         onClick={() => setActivePatient(patient)}
-//                                         className="text-white bg-indigo-600 hover:bg-indigo-700 inline-flex items-center text-sm font-semibold p-2 rounded-lg shadow-md"
-//                                     >
-//                                         <Stethoscope className="w-4 h-4 mr-1" /> Start Consult
-//                                     </button>
-//                                 </td>
-//                             </tr>
-//                         ))}
-//                     </tbody>
-//                 </table>
-//             </div>
-
-//             {/* Render the EMR view if a patient is selected */}
-//             {emrPatient && <EMRContextView patient={emrPatient} onClose={closeEmrView} />}
-//         </div>
-//     );
-// };
-
-
 /**
  * Tab 2: Remote Monitoring (RPM) Dashboard
  */
@@ -542,7 +453,6 @@ const CarePlanTools = () => {
         </div>
     );
 };
-
 
 /**
  * The main Clinician Dashboard layout.
@@ -764,6 +674,7 @@ const LoginPage = ({ onLogin }) => {
  */
 const ClinicianPortal = () => {
     const [user, setUser] = useState(null);
+    const navigate = useNavigate();
 
     const handleLogin = (userData) => {
         setUser(userData);
@@ -771,6 +682,7 @@ const ClinicianPortal = () => {
 
     const handleLogout = () => {
         setUser(null);
+        navigate("/");
     };
 
     // Use useMemo to prevent unnecessary re-renders of the main view

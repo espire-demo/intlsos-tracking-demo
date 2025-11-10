@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ClaimsSubmissionTrend from "./ClaimsSubmissionTrend";
 import ClaimsList from "./ClaimsList";
 import CarePlanForm from "./CarePlanForm"; // import your form component
+import { useNavigate } from "react-router-dom";
 
 // Assuming lucide-react is available for icons
 // If not available, use inline SVG or standard emojis
@@ -403,57 +404,6 @@ const CarePlanTemplates = () => {
   );
 };
 
-
-
-
-// const CarePlanTemplates = () => (
-//   <div className="space-y-6 p-4 md:p-8">
-//     <h2 className="text-3xl font-extrabold text-white border-b pb-2 mb-6">
-//       RPM: Care Plan Templates Management
-//     </h2>
-//     <p className="text-white">Define reusable templates for conditions like Hypertension, Diabetes, and COPD.</p>
-
-//     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-//       {/* Template Card 1 */}
-//       <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300 border-l-4 border-sky-500">
-//         <h3 className="text-xl font-semibold mb-2 flex justify-between items-start">
-//           <span>Hypertension Management</span>
-//           <span className="text-sm font-normal text-gray-500">V1.2</span>
-//         </h3>
-//         <p className="text-gray-600 text-sm">Focuses on daily BP readings, medication adherence, and weekly dietitian check-ins.</p>
-//         <div className="mt-4 flex space-x-2">
-//           <span className="text-xs bg-gray-100 px-3 py-1 rounded-full">30-day plan</span>
-//           <span className="text-xs bg-gray-100 px-3 py-1 rounded-full">Daily BP</span>
-//           <span className="text-xs bg-gray-100 px-3 py-1 rounded-full">Medication</span>
-//         </div>
-//         <button className="mt-4 text-indigo-600 hover:text-indigo-800 font-medium">Edit Template</button>
-//       </div>
-
-//       {/* Template Card 2 */}
-//       <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300 border-l-4 border-amber-500">
-//         <h3 className="text-xl font-semibold mb-2 flex justify-between items-start">
-//           <span>Diabetes Monitoring</span>
-//           <span className="text-sm font-normal text-gray-500">V2.0</span>
-//         </h3>
-//         <p className="text-gray-600 text-sm">Includes continuous glucose monitoring (CGM) data collection and bi-weekly endocrinologist review.</p>
-//         <div className="mt-4 flex space-x-2">
-//           <span className="text-xs bg-gray-100 px-3 py-1 rounded-full">90-day plan</span>
-//           <span className="text-xs bg-gray-100 px-3 py-1 rounded-full">CGM</span>
-//           <span className="text-xs bg-gray-100 px-3 py-1 rounded-full">Exercise Log</span>
-//         </div>
-//         <button className="mt-4 text-indigo-600 hover:text-indigo-800 font-medium">Edit Template</button>
-//       </div>
-//     </div>
-
-//     <div className="mt-8">
-//       <button className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-md hover:bg-indigo-700 transition duration-200">
-//         <Icons.FileText className="w-5 h-5 mr-2" />
-//         Create New Template
-//       </button>
-//     </div>
-//   </div>
-// );
-
 /**
  * Manages configurable workflows and role-based approvals for RPM processes.
  */
@@ -614,13 +564,17 @@ const AdminPortal = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // For mobile
+  const navigate = useNavigate(); // Initialize navigate
 
-  const handleLogin = () => setIsLoggedIn(true);
+  const handleLogin = () => setIsLoggedIn(true);  
+
   const handleLogout = () => {
     setIsLoggedIn(false);
-    setCurrentPage('dashboard');
+    setCurrentPage("dashboard");
     setIsSidebarOpen(false);
+    navigate("/"); // Redirect to HealthDashboard route
   };
+
   const handleNavigate = (pageId) => {
     setCurrentPage(pageId);
     setIsSidebarOpen(false); // Close sidebar after navigating on mobile
