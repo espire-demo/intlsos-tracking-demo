@@ -45,11 +45,11 @@ const ApplicationDashboard = () => {
       }}
     >
       <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-6">
-        Digital Health & RPM Dashboard
+        IntlSOS - Tracking Dashboard
       </h1>
-      <p className="text-gray-200 mb-12 text-lg">
+      {/* <p className="text-gray-200 mb-12 text-lg">
         Choose a portal to manage or access your digital health services.
-      </p>
+      </p> */}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl w-full">
         {cards.map((card, index) => (
@@ -70,7 +70,7 @@ const ApplicationDashboard = () => {
       </div>
 
       <footer className="mt-12 text-gray-300 text-sm">
-        © 2025 Digital Health RPM Platform
+        © 2025 IntlSOS - Tracking Platform
       </footer>
     </div>
   );

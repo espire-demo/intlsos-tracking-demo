@@ -112,7 +112,10 @@ const Dashboard = () => {
 
   useEffect(() => {
     const claimRequests = JSON.parse(localStorage.getItem("claimRequests")) || [];
-    setClaimRequestsCount(claimRequests.length);
+    const pendingClaimRequests = claimRequests.filter(
+      (claim) => claim.status === "Pending"
+    );
+    setClaimRequestsCount(pendingClaimRequests.length);
   }, []);
 
   useEffect(() => {
