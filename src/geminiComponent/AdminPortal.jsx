@@ -75,7 +75,7 @@ const LoginPage = ({ onLogin }) => {
         <div className="space-y-4">
           <input
             type="text"
-            placeholder="Username (admin)"
+            placeholder="Username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition duration-150"
@@ -83,7 +83,7 @@ const LoginPage = ({ onLogin }) => {
           />
           <input
             type="password"
-            placeholder="Password (password)"
+            placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition duration-150"

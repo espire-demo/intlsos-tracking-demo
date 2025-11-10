@@ -439,7 +439,7 @@ const Teleconsultation = ({ setTelehealthConfirmation, user }) => {
     const confirmationMsg = `✅ Booking Confirmed!\n\nSpecialty: ${specialty}\nClinician: ${clinician.name}\nType: ${consultType}\nPayment: ${paymentType}\nDate: ${new Date(date).toLocaleDateString()}\nTime: ${timeSlot}`;
     setTelehealthConfirmation(confirmationMsg);
     setIsBooked(true);
-    setShowBookingPanel(false);
+    //setShowBookingPanel(false);
   };
 
   // Filter clinicians by specialty
@@ -461,7 +461,10 @@ const Teleconsultation = ({ setTelehealthConfirmation, user }) => {
             </div>
 
             <button
-              onClick={() => setShowBookingPanel(true)}
+              onClick={() => {
+                setShowBookingPanel(true);
+                resetForm();
+              }}
               className="flex items-center gap-1 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-3 py-1.5 rounded-lg shadow-sm transition-all"
             >
               <PlusCircle className="w-4 h-4" />
@@ -530,7 +533,10 @@ const Teleconsultation = ({ setTelehealthConfirmation, user }) => {
               </div>
 
               <button
-                onClick={() => setShowBookingPanel(false)}
+                onClick={() => {
+                  setShowBookingPanel(false);
+                  resetForm();
+                }}
                 className="flex items-center gap-1 border border-gray-300 text-gray-600 text-sm font-medium px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-all"
               >
                 ✕ Close
@@ -1331,8 +1337,8 @@ const RPM = ({ user }) => {
               disabled={isEnrolled}
               primary={!isEnrolled}
               className={`w-full py-2 rounded-lg font-medium transition-all ${isEnrolled
-                  ? "bg-gray-100 text-gray-500 cursor-not-allowed"
-                  : "bg-indigo-600 hover:bg-indigo-700 text-white"
+                ? "bg-gray-100 text-gray-500 cursor-not-allowed"
+                : "bg-indigo-600 hover:bg-indigo-700 text-white"
                 }`}
             >
               {isEnrolled ? "Enrolled in Diabetes Plan" : "Enroll Now"}
@@ -1352,8 +1358,8 @@ const RPM = ({ user }) => {
               disabled={isEnrolled2}
               primary={!isEnrolled2}
               className={`w-full py-2 rounded-lg font-medium transition-all ${isEnrolled2
-                  ? "bg-gray-100 text-gray-500 cursor-not-allowed"
-                  : "bg-indigo-600 hover:bg-indigo-700 text-white"
+                ? "bg-gray-100 text-gray-500 cursor-not-allowed"
+                : "bg-indigo-600 hover:bg-indigo-700 text-white"
                 }`}
             >
               {isEnrolled2
@@ -1830,7 +1836,7 @@ const LoginScreen = ({ handleLogin }) => {
         <form onSubmit={handleSubmit} className="space-y-6">
           <input
             type="email"
-            placeholder="Email (e.g., alex@member.com)"
+            placeholder="Email"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition duration-150"

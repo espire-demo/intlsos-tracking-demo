@@ -75,7 +75,7 @@ const Card = ({ title, value, icon: Icon, colorClass = 'text-primary', className
  * Simulates the EMR view deeplink target, designed for mobile resolution.
  */
 const EMRContextView = ({ patient, onClose }) => {
-    const vitals = mockVitals[patient.id] || {};
+    const vitals = mockVitals[patient.id] || {};   
 
     const handleChartUpdate = () => {
         // Simulates Clinician updates chart -> update flows back to Member’s PHR.
@@ -92,7 +92,7 @@ const EMRContextView = ({ patient, onClose }) => {
                 {/* Header */}
                 <header className="p-4 flex justify-between items-center text-white sticky top-0 shadow-md" style={{ backgroundColor: primaryColor }}>
                     <h2 className="text-xl font-bold flex items-center">
-                        <FileText className="w-5 h-5 mr-2" /> EMR: {patient.name}
+                        <FileText className="w-5 h-5 mr-2" /> EMR: {patient.memberName}
                     </h2>
                     <button onClick={onClose} className="p-1 rounded-full hover:bg-teal-700 transition">
                         <X className="w-6 h-6" />
@@ -103,8 +103,8 @@ const EMRContextView = ({ patient, onClose }) => {
                 <div className="p-4 flex-grow overflow-y-auto space-y-6">
                     {/* Patient Context */}
                     <div className="text-center pb-4 border-b border-gray-100">
-                        <h3 className="text-2xl font-bold text-gray-800">{patient.name}</h3>
-                        <p className="text-sm text-gray-500">ID: {patient.id} | {patient.age} y/o | {patient.condition}</p>
+                        <h3 className="text-2xl font-bold text-gray-800">{patient.memberName}</h3>
+                        <p className="text-sm text-gray-500">{patient.userId} | {patient.bookingId} | {patient.condition}</p>
                     </div>
 
                     {/* Vitals Snapshot from PHR */}
@@ -175,8 +175,11 @@ const PatientEMRDashboard = ({ setActivePatient, user }) => {
     const [emrPatient, setEmrPatient] = useState(null);
     const [mockPatients, setMockPatients] = useState([]);
     const [users, setUsers] = useState([]);
+    
+    const openEmrView = (patient) => {
+        setEmrPatient(patient);
+    };
 
-    const openEmrView = (patient) => setEmrPatient(patient);
     const closeEmrView = () => setEmrPatient(null);
 
     // Load users.json once on mount
@@ -240,7 +243,7 @@ const PatientEMRDashboard = ({ setActivePatient, user }) => {
                                     Booking ID
                                 </th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Patient Name
+                                    Patient Details
                                 </th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Condition
@@ -260,10 +263,10 @@ const PatientEMRDashboard = ({ setActivePatient, user }) => {
                                     className="hover:bg-teal-50 transition duration-150"
                                 >
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        {patient.bookingId}                                        
+                                        {patient.bookingId}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        {patient.memberName}
+                                        {patient.memberName} ({patient.userId})
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                         {patient.condition}
@@ -271,10 +274,10 @@ const PatientEMRDashboard = ({ setActivePatient, user }) => {
                                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                                         <span
                                             className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${patient.vitalsStatus === "Alert"
-                                                    ? "bg-red-100 text-red-800"
-                                                    : patient.vitalsStatus === "Warning"
-                                                        ? "bg-yellow-100 text-yellow-800"
-                                                        : "bg-green-100 text-green-800"
+                                                ? "bg-red-100 text-red-800"
+                                                : patient.vitalsStatus === "Warning"
+                                                    ? "bg-yellow-100 text-yellow-800"
+                                                    : "bg-green-100 text-green-800"
                                                 }`}
                                         >
                                             {patient.vitalsStatus}
@@ -510,7 +513,7 @@ const Dashboard = ({ user, onLogout }) => {
     return (
         <div className="min-h-screen flex bg-gray-100">
             {/* Sidebar Navigation */}
-            <nav className="hidden md:flex flex-col w-74 text-white p-6 shadow-2xl" style={{background: "linear-gradient(to right, #2c3e50, #4ca1af)",}}>
+            <nav className="hidden md:flex flex-col w-74 text-white p-6 shadow-2xl" style={{ background: "linear-gradient(to right, #2c3e50, #4ca1af)", }}>
                 <div className="text-3xl font-extrabold mb-8 text-white text-center">
                     Clinician Portal
                 </div>
@@ -547,7 +550,7 @@ const Dashboard = ({ user, onLogout }) => {
             </nav>
 
             {/* Main Content Area */}
-            <main className="flex-1 p-4 md:p-8 overflow-y-auto" style={{background: "linear-gradient(180deg, #002940 0%, #16376A 34.13%, #154C91 52.88%, #16376A 69.71%, #002940 100%)",}}>
+            <main className="flex-1 p-4 md:p-8 overflow-y-auto" style={{ background: "linear-gradient(180deg, #002940 0%, #16376A 34.13%, #154C91 52.88%, #16376A 69.71%, #002940 100%)", }}>
                 {/* Mobile Tab Navigation */}
                 <div className="md:hidden mb-6 bg-white p-4 rounded-xl shadow-md">
                     <label className="block text-sm font-medium text-gray-700 mb-2">Navigation</label>
@@ -620,8 +623,8 @@ const LoginPage = ({ onLogin }) => {
     };
 
     return (
-       <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4" style={{background: "linear-gradient(180deg, #002940 0%, #16376A 34.13%, #154C91 52.88%, #16376A 69.71%, #002940 100%)",}}>
-            <div className="w-full max-w-md bg-white p-12 rounded-2xl shadow-2xl" style={{background: "linear-gradient(to right, #2c3e50, #4ca1af)",}}>
+        <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4" style={{ background: "linear-gradient(180deg, #002940 0%, #16376A 34.13%, #154C91 52.88%, #16376A 69.71%, #002940 100%)", }}>
+            <div className="w-full max-w-md bg-white p-12 rounded-2xl shadow-2xl" style={{ background: "linear-gradient(to right, #2c3e50, #4ca1af)", }}>
                 <h2 className="text-4xl font-bold text-center text-white mb-2">Clinician Portal Login</h2>
                 <p className="text-center text-white mb-6">Secure Access Required</p>
 
@@ -632,7 +635,7 @@ const LoginPage = ({ onLogin }) => {
                             id="username"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
-                            placeholder="doctor"
+                            placeholder="Username"
                             required
                             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary transition duration-150"
                         />
@@ -643,7 +646,7 @@ const LoginPage = ({ onLogin }) => {
                             id="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            placeholder="securepass"
+                            placeholder="password"
                             required
                             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary transition duration-150"
                         />

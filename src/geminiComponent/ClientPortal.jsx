@@ -377,7 +377,7 @@ const LoginPage = ({ onLogin }) => {
                             id="username"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
-                            placeholder="admin"
+                            placeholder="Username"
                             required
                             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary transition duration-150 mb-1 mt-4"
                         />
