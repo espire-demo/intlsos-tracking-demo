@@ -45,7 +45,7 @@ const ClaimsSubmissionTrend = () => {
   }, []);
 
   return (
-    <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+    <div className="bg-white rounded-xl p-4">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold text-gray-800">
           Claims Submission Trend
@@ -61,7 +61,8 @@ const ClaimsSubmissionTrend = () => {
         </p>
       ) : (
         <div className="h-64">
-          <ResponsiveContainer width={650} height="100%">
+          {/* <ResponsiveContainer width={650} height="100%"> */}
+          <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={chartData}
               margin={{ top: 10, right: 20, left: 0, bottom: 0 }}

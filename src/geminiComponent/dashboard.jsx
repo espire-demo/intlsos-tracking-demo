@@ -13,13 +13,13 @@ const HealthDashboard = () => {
           <h1>Health Management Dashboard</h1>
           <p>Centralized platform for all health management services</p>
         </div>
-        <div className="user-info">
+        {/* <div className="user-info">
           <div className="user-avatar">JD</div>
           <div>
             <div style={{ fontWeight: "bold" }}>John Doe</div>
             <div style={{ fontSize: "0.9rem", color: "#5a7b9d" }}>Administrator</div>
           </div>
-        </div>
+        </div> */}
       </header>
 
       <div className="dashboard-content">

@@ -164,14 +164,16 @@ const Dashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-4">
-        <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg">
-          <h3 className="text-xl font-semibold text-gray-800 mb-4">Claims Submission Trend</h3>
-          <p className="text-center text-gray-500 h-48 flex items-center justify-center">
-            {/* [Placeholder for Chart: Monthly Claims Volume] */}
+        <div className="lg:col-span-2 bg-white p-4 rounded-xl shadow-lg">
+          {/* <h3 className="text-xl font-semibold text-gray-800 mb-4"></h3> */}
+          {/* <p className="text-center text-gray-500 h-48 flex items-center justify-center">
+            
             <div className="p-6 space-y-6">
-              <ClaimsSubmissionTrend />
+              
             </div>
-          </p>
+          </p> */}
+
+          <ClaimsSubmissionTrend />
         </div>
         <div className="bg-white p-6 rounded-xl shadow-lg">
           <h3 className="text-xl font-semibold text-gray-800 mb-4">Top Workflow Approvals</h3>
@@ -619,7 +621,7 @@ const AdminPortal = () => {
       {/* 3. Main Content Area */}
       <div className="flex flex-col flex-1 overflow-hidden">
         {/* Header */}
-        <header className="flex justify-between items-center text-white border-b border-black p-4 shadow-sm flex-shrink-0" style={{ minHeight: "85px" }}>
+        {/* <header className="flex justify-between items-center text-white border-b border-black p-4 shadow-sm flex-shrink-0" style={{ minHeight: "85px" }}>
           <button
             onClick={() => setIsSidebarOpen(true)}
             className="md:hidden text-gray-500 hover:text-gray-700 p-2 rounded-lg"
@@ -645,7 +647,7 @@ const AdminPortal = () => {
               <Icons.LogIn className="w-5 h-5" />
             </button>
           </div>
-        </header>
+        </header> */}
 
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto">

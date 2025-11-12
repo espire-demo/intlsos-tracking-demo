@@ -1707,7 +1707,7 @@ const NavBar = ({ activeTab, setActiveTab, handleLogout }) => {
         <Button onClick={handleLogout} primary={false} className="!bg-red-500 !text-white hover:!bg-red-600">
           Logout
         </Button>
-        <p className="text-xs text-gray-400 mt-2 text-center">Member ID: **0012345**</p>
+        <p className="text-xs text-gray-400 mt-2 text-center"></p>
       </div>
     </nav>
   );
@@ -1818,7 +1818,7 @@ const LoginScreen = ({ handleLogin }) => {
     );
 
     if (foundUser) {
-      alert(`Welcome, ${foundUser.name}!`);
+      // alert(`Welcome, ${foundUser.name}!`);
       handleLogin(foundUser); // Pass user info to parent
     } else {
       alert("Invalid credentials. Please try again.");

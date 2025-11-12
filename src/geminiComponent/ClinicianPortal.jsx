@@ -607,15 +607,8 @@ const LoginPage = ({ onLogin }) => {
             (u) => u.username === username && u.pwd === password
         );
 
-        // Simple mock login logic
-        // if (username === 'doctor' && password === 'securepass') {
-        //     onLogin(mockClinicianData);
-        // } else {
-        //     setError('Invalid credentials. Try "doctor" and "securepass".');
-        // }
-
         if (foundUser) {
-            alert(`Welcome, ${foundUser.name}!`);
+            // alert(`Welcome, ${foundUser.name}!`);
             onLogin(foundUser); // Pass user info to parent
         } else {
             alert("Invalid credentials. Please try again.");
