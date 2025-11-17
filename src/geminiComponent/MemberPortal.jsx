@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { Phone, Calendar, PlusCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import PaymentGateway from "./paymentgateway";
 
 // --- Icon Definitions (Inline SVGs to maintain Single File Mandate) ---
 const HomeIcon = (props) => (<svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>);
@@ -355,6 +356,7 @@ const Teleconsultation = ({ setTelehealthConfirmation, user }) => {
   const [clinicians, setClinicians] = useState([]);
   const [conditions, setConditions] = useState([]); // list of available conditions
   const [condition, setCondition] = useState("");   // selected condition
+  const [showPayment, setShowPayment] = useState(false);
 
   const [date, setDate] = useState(() => {
     const today = new Date();
@@ -436,10 +438,12 @@ const Teleconsultation = ({ setTelehealthConfirmation, user }) => {
     existing.push(newBooking);
     localStorage.setItem("teleBookings", JSON.stringify(existing));
 
-    const confirmationMsg = `✅ Booking Confirmed!\n\nSpecialty: ${specialty}\nClinician: ${clinician.name}\nType: ${consultType}\nPayment: ${paymentType}\nDate: ${new Date(date).toLocaleDateString()}\nTime: ${timeSlot}`;
+    const confirmationMsg = `Booking Confirmed!\n\nSpecialty: ${specialty}\nClinician: ${clinician.name}\nType: ${consultType}\nPayment: ${paymentType}\nDate: ${new Date(date).toLocaleDateString()}\nTime: ${timeSlot}`;
     setTelehealthConfirmation(confirmationMsg);
     setIsBooked(true);
-    //setShowBookingPanel(false);
+
+    setShowPayment(true);
+
   };
 
   // Filter clinicians by specialty
@@ -696,6 +700,7 @@ const Teleconsultation = ({ setTelehealthConfirmation, user }) => {
                 </div>
 
                 <Button onClick={handleConfirmBooking}>Confirm Booking</Button>
+
               </div>
             ) : (
               <div className="text-center p-8 bg-green-50 border border-green-300 rounded-lg">
@@ -710,6 +715,23 @@ const Teleconsultation = ({ setTelehealthConfirmation, user }) => {
               </div>
             )}
           </Panel>
+        )}
+
+        {showPayment && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="w-full max-w-3xl h-[95vh] bg-white rounded-xl shadow-xl overflow-y-auto relative">
+
+              {/* Close button */}
+              <button
+                onClick={() => setShowPayment(false)}
+                className="absolute top-3 right-3 text-gray-600 hover:text-red-600 text-2xl"
+              >
+                ×
+              </button>
+
+              <PaymentGateway />
+            </div>
+          </div>
         )}
       </div>
     </div>

@@ -105,14 +105,16 @@ const AnalyticsDashboard = () => {
                 />
             </div>
 
-            {/* Wallet Utilization and Placeholder Chart */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg border border-gray-100">
-                    <h3 className="text-xl font-bold mb-4 text-gray-800">Quarterly Service Utilization Trend</h3>
-                    <div className="h-64 flex items-center justify-center bg-gray-50 rounded-lg border-dashed border-2 border-gray-300">
-                        {/* With this component */}
+            {/* Wallet Utilization and Placeholder Chart grid grid-cols-1 lg:grid-cols-3 gap-6 pt-4 */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-4">
+                <div className="lg:col-span-2 bg-white p-2 rounded-xl shadow-lg border border-gray-100">
+                    {/* <h3 className="text-xl font-bold mb-4 text-gray-800">Quarterly Service Utilization Trend</h3> */}
+                    {/* <div className="h-64 flex items-center justify-center bg-gray-50 rounded-lg border-dashed border-2 border-gray-300">
+                       
                         <QuarterlyServiceUtilization />
-                    </div>
+                        lg:col-span-2 bg-white p-4 rounded-xl shadow-lg
+                    </div> */}
+                    <QuarterlyServiceUtilization />
                 </div>
 
                 <div className="bg-white p-6 rounded-xl shadow-lg border-t-4 border-green-500">

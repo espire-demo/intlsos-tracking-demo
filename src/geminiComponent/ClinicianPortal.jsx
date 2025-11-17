@@ -2,6 +2,9 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { LogIn, User, Stethoscope, HeartPulse, ClipboardList, AlertTriangle, MessageSquare, ExternalLink, Activity, Plus, FileText, X } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 
+import PharmacyApp from "./pharmacyapp";
+
+
 // --- Configuration and Mock Data ---
 
 // Professional, modern medical color palette
@@ -75,7 +78,7 @@ const Card = ({ title, value, icon: Icon, colorClass = 'text-primary', className
  * Simulates the EMR view deeplink target, designed for mobile resolution.
  */
 const EMRContextView = ({ patient, onClose }) => {
-    const vitals = mockVitals[patient.id] || {};   
+    const vitals = mockVitals[patient.id] || {};
 
     const handleChartUpdate = () => {
         // Simulates Clinician updates chart -> update flows back to Member’s PHR.
@@ -175,7 +178,7 @@ const PatientEMRDashboard = ({ setActivePatient, user }) => {
     const [emrPatient, setEmrPatient] = useState(null);
     const [mockPatients, setMockPatients] = useState([]);
     const [users, setUsers] = useState([]);
-    
+
     const openEmrView = (patient) => {
         setEmrPatient(patient);
     };
@@ -462,32 +465,223 @@ const CarePlanTools = () => {
  */
 const Dashboard = ({ user, onLogout }) => {
     const [activeTab, setActiveTab] = useState('patients');
-    const [activePatient, setActivePatient] = useState(null); // Used to simulate starting a consult
+    const [activePatient, setActivePatient] = useState(null);
+    const [showPrescriptionForm, setShowPrescriptionForm] = useState(false);
+
+    const [showSubmittedPopup, setShowSubmittedPopup] = useState(false);
+    const [submittedText, setSubmittedText] = useState("");
+    const [showPharmacyApp, setShowPharmacyApp] = useState(false);
+
+    const [medicines, setMedicines] = useState([{ name: "", dosage: "", frequency: "" }]);
+
+    const handleAddMedicine = () => {
+        setMedicines([...medicines, { name: "", dosage: "", frequency: "" }]);
+    };
+
+    const handleRemoveMedicine = (index) => {
+        setMedicines(medicines.filter((_, i) => i !== index));
+    };
+
+    const handleMedicineChange = (index, field, value) => {
+        const updated = [...medicines];
+        updated[index][field] = value;
+        setMedicines(updated);
+    };
+
+    const handlePrescriptionSubmit = (e) => {
+        e.preventDefault();
+
+        // Keep only rows where the medicine name is filled
+        const filled = medicines.filter(m => m.name.trim() !== "");
+
+        if (filled.length === 0) {
+            alert("Please enter at least one medicine.");
+            return;
+        }
+
+        // Format only the filled medicines
+        const formatted = filled
+            .map(m => `${m.name || "N/A"} - ${m.dosage || "N/A"} - ${m.frequency || "N/A"}`)
+            .join("\n");
+
+        setSubmittedText(
+            `Prescription submitted to Partner Pharmacy App for ${activePatient.memberName}:\n\n${formatted}`
+        );
+
+        // Show modal popup
+        setShowSubmittedPopup(true);
+
+        // Reset to a single blank row
+        setMedicines([{ name: "", dosage: "", frequency: "" }]);
+
+        // Close form
+        setShowPrescriptionForm(false);
+    };
+
 
     const renderContent = () => {
         if (activePatient) {
             return (
-                <div className="p-8 bg-indigo-50 rounded-xl shadow-inner border border-indigo-200">
+                <div className="p-8 bg-indigo-50 rounded-xl shadow-inner border border-indigo-200 relative">
                     <div className="flex justify-between items-center mb-6 border-b pb-3">
                         <h3 className="text-3xl font-bold text-indigo-700 flex items-center">
-                            <Stethoscope className="w-8 h-8 mr-2" /> Teleconsult: {activePatient.name}
+                            <Stethoscope className="w-8 h-8 mr-2" /> Teleconsult: {activePatient.memberName}
                         </h3>
-                        <button
-                            onClick={() => {
-                                alert(`e-Prescription issued and sent to Partner Pharmacy App for ${activePatient.name}.`);
-                                setActivePatient(null);
-                            }}
-                            className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-300"
-                        >
-                            Issue & End Consult
-                        </button>
+
+                        <div className="flex space-x-3">
+                            <button
+                                onClick={() => setShowPrescriptionForm(true)}
+                                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-300"
+                            >
+                                e-Prescription Form
+                            </button>
+
+                            <button
+                                onClick={() => {
+                                    alert(`Consultation ended for ${activePatient.memberName}.`);
+                                    setActivePatient(null);
+                                }}
+                                className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-300"
+                            >
+                                End Consultation
+                            </button>
+                        </div>
                     </div>
+
                     <p className="text-gray-700 mb-4">
-                        **EMR Context:** {activePatient.name} has a current Risk Score of **{activePatient.riskScore}**. Last visit was **{activePatient.lastConsult}**.
+                        EMR Context: {activePatient.memberName} has a current Risk of {activePatient.vitalsStatus}.
+                        Last visit was {activePatient.date} {activePatient.timeSlot}.
                     </p>
+
                     <div className="h-64 flex items-center justify-center bg-white rounded-lg border-dashed border-2 border-indigo-300 text-gray-500">
                         [Placeholder for Live Video Feed & e-Prescription Form]
                     </div>
+
+                    {showPrescriptionForm && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                            <div className="bg-white rounded-lg shadow-lg p-6 w-[480px] max-h-[90vh] overflow-y-auto relative">
+                                <h2 className="text-xl font-semibold text-indigo-700 mb-4">e-Prescription Form</h2>
+
+                                <form onSubmit={handlePrescriptionSubmit} className="space-y-4">
+                                    {medicines.map((med, index) => (
+                                        <div key={index} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                                            <div className="flex justify-between items-center mb-2">
+                                                <h3 className="font-semibold text-gray-700">Medicine {index + 1}</h3>
+                                                {medicines.length > 1 && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleRemoveMedicine(index)}
+                                                        className="text-red-500 hover:text-red-700 text-sm"
+                                                    >
+                                                        Remove
+                                                    </button>
+                                                )}
+                                            </div>
+
+                                            <input
+                                                type="text"
+                                                placeholder="Medicine Name"
+                                                value={med.name}
+                                                onChange={(e) => handleMedicineChange(index, "name", e.target.value)}
+                                                className="w-full mb-2 p-2 border rounded-md focus:ring-2 focus:ring-indigo-400"
+                                            />
+
+                                            <div className="flex space-x-2">
+                                                <input
+                                                    type="text"
+                                                    placeholder="Dosage (e.g. 500mg)"
+                                                    value={med.dosage}
+                                                    onChange={(e) => handleMedicineChange(index, "dosage", e.target.value)}
+                                                    className="w-1/2 p-2 border rounded-md focus:ring-2 focus:ring-indigo-400"
+                                                />
+                                                <input
+                                                    type="text"
+                                                    placeholder="Frequency (e.g. Twice daily)"
+                                                    value={med.frequency}
+                                                    onChange={(e) => handleMedicineChange(index, "frequency", e.target.value)}
+                                                    className="w-1/2 p-2 border rounded-md focus:ring-2 focus:ring-indigo-400"
+                                                />
+                                            </div>
+                                        </div>
+                                    ))}
+
+                                    <button
+                                        type="button"
+                                        onClick={handleAddMedicine}
+                                        className="w-full py-2 border border-indigo-400 text-indigo-600 hover:bg-indigo-50 rounded-lg transition duration-300 font-medium"
+                                    >
+                                        + Add Another Medicine
+                                    </button>
+
+                                    <div className="flex justify-end space-x-3 mt-4">
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPrescriptionForm(false)}
+                                            className="bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded-lg"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg"
+                                        >
+                                            Submit Prescription
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    )}
+
+                    {showSubmittedPopup && (
+                        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                            <div className="bg-white rounded-lg shadow-xl p-6 w-96">
+                                <h3 className="text-lg font-semibold mb-4 text-gray-700">
+                                    Prescription Submitted
+                                </h3>
+
+                                <pre className="whitespace-pre-wrap text-gray-600 text-sm mb-4">
+                                    {submittedText}
+                                </pre>
+
+                                <button
+                                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg font-semibold"
+                                    // onClick={() => {
+                                    //     setShowSubmittedPopup(false);
+                                    //     setActivePatient(null);
+                                    // }}
+
+                                    onClick={() => {
+                                        setShowSubmittedPopup(false);   // close submitted message
+                                        setShowPharmacyApp(true);       // open pharmacy UI modal
+                                    }}
+                                >
+                                    OK
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {showPharmacyApp && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                            <div className="w-full max-w-5xl h-[90vh] bg-white rounded-xl shadow-xl overflow-y-auto relative">
+
+                                {/* Close button */}
+                                <button
+                                    onClick={() => setShowPharmacyApp(false)}
+                                    className="absolute top-3 right-3 text-gray-600 hover:text-red-600 text-2xl"
+                                >
+                                    ×
+                                </button>
+                                <br></br>
+                                <br></br>
+                                <PharmacyApp />
+                            </div>
+                        </div>
+                    )}
+
+
+
                 </div>
             );
         }
